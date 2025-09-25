@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clipped - Native Clipboard Manager</title>
+    <link rel="stylesheet" href="style.css" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Custom Header (No system window decorations) -->
+      <div class="header">
+        <button class="icon-btn" id="clipboardBtn" title="Clipboard History">
+          <img src="assets/note.png" alt="Clipboard" />
+        </button>
+        <button class="icon-btn" id="emojiBtn" title="Emoji Picker">
+          <img src="assets/enoji.png" alt="Emoji" />
+        </button>
+        <button class="icon-btn" id="settingsBtn" title="Settings">
+          <img src="assets/settings.png" alt="Settings" />
+        </button>
+        <div class="header-spacer"></div>
+        <button class="icon-btn" id="clearBtn" title="Clear All">
+          <img src="assets/x.png" alt="Clear" />
+        </button>
+      </div>
+
+      <div class="content">
+        <!-- Clipboard History Page -->
+        <div class="page active" id="clipboardPage">
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search clipboard history..."
+            />
+          </div>
+          <div class="clipboard-list" id="clipboardList">
+            <div class="empty-state" id="emptyState">
+              <p>Nothing on your board !</p>
+              <small>Copy something to get started</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emoji Picker Page -->
+        <div class="page" id="emojiPage">
+          <div class="emoji-list" id="emojiList">
+            <!-- Emojis will be populated here -->
+          </div>
+          <div class="emoji-categories">
+            <button
+              class="emoji-category active"
+              data-category="recent"
+              title="Recent"
+            >
+              🕒
+            </button>
+            <button
+              class="emoji-category"
+              data-category="smileys"
+              title="Smileys & Emotion"
+            >
+              😀
+            </button>
+            <button
+              class="emoji-category"
+              data-category="people"
+              title="People & Body"
+            >
+              👋
+            </button>
+            <button
+              class="emoji-category"
+              data-category="animals"
+              title="Animals & Nature"
+            >
+              🐶
+            </button>
+            <button
+              class="emoji-category"
+              data-category="food"
+              title="Food & Drink"
+            >
+              🍎
+            </button>
+            <button
+              class="emoji-category"
+              data-category="objects"
+              title="Objects"
+            >
+              ⌚
+            </button>
+            <button
+              class="emoji-category"
+              data-category="symbols"
+              title="Symbols"
+            >
+              ❤️
+            </button>
+            <button
+              class="emoji-category"
+              data-category="activities"
+              title="Activities"
+            >
+              ⚽
+            </button>
+          </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settingsPage">
+          <div class="settings-container">
+            <div class="settings-image">
+              <img src="assets/atik0.gif" alt="myface :'3 " />
+            </div>
+
+            <div class="about-section">
+              Hi! This is irony! I try to make useful things that are not
+              available in Linux!<br />
+              Contact me: atikrony.me || atiqrony.aiub@gmail.com
+            </div>
+
+            <div class="settings-section">
+              <label for="hotkeyInput">Set Hotkey:</label>
+              <input id="hotkeyInput" type="text" value="Super + V" readonly />
+              <button id="editHotkeyBtn">Edit</button>
+            </div>
+
+            <div class="settings-info">Current hotkey: <b>Super + V</b></div>
+
+            <div class="settings-section">
+              <label>Clipboard Management:</label>
+              <button id="clearClipboardBtn">Clear All Items</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

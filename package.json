@@ -1,0 +1,65 @@
+{
+  "name": "clipped-native",
+  "version": "1.0.0",
+  "description": "Native Linux Clipboard Manager with Real System Integration",
+  "main": "main.js",
+  "author": {
+    "name": "Clipped Developer",
+    "email": "dev@clipped.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "clipboard",
+    "manager",
+    "linux",
+    "native",
+    "desktop",
+    "productivity"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.clipped.native",
+    "productName": "Clipped",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "preload.js",
+      "index.html",
+      "style.css",
+      "assets/**/*"
+    ],
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Utility",
+      "icon": "assets/note.png"
+    }
+  }
+}

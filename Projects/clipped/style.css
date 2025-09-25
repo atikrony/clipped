@@ -1,0 +1,518 @@
+/* ========================================
+   MAIN CONTENT LAYOUT
+   ======================================== */
+
+/* Main container for all clipboard content (clipboard, emoji, settings pages) */
+.clipboard-content {
+  flex: 1; /* Takes remaining space in container */
+  display: flex; /* Flexbox layout */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center horizontally */
+  justify-content: flex-start; /* Start from top */
+  width: 100%; /* Full width */
+  padding-top: 16px; /* Reduced top spacing to minimize gap */
+}
+
+/* ========================================
+   SCROLLABLE CLIPBOARD PAGE
+   ======================================== */
+
+/* Container for clipboard items with calculated height to fit within clipboard */
+.clipboard-page {
+  width: 90%; /* 90% of parent width */
+  display: block; /* Block display */
+  height: 360px; /* Calculated: 450px (clipboard) - 70px (header) - 16px (padding) */
+  overflow-y: auto; /* Enable vertical scrolling when content overflows */
+  scroll-padding-bottom: 8px; /* Minimal padding for scroll visibility */
+  border-radius: 5%;
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR STYLING
+   ======================================== */
+
+/* Scrollbar width - makes it thin and unobtrusive */
+.clipboard-page::-webkit-scrollbar {
+  width: 6px; /* Thin scrollbar */
+}
+
+/* Scrollbar track (background area) */
+.clipboard-page::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+  border-radius: 3px; /* Rounded corners */
+}
+
+/* Scrollbar thumb (draggable part) */
+.clipboard-page::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
+  border-radius: 3px; /* Rounded corners */
+}
+
+/* Scrollbar thumb on hover - becomes more visible */
+.clipboard-page::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5); /* More opaque on hover */
+}
+
+/* ========================================
+   SETTINGS PAGE LAYOUT
+   ======================================== */
+
+/* Settings page has different layout - elements positioned at bottom center */
+#settingsPage {
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center horizontally */
+  justify-content: flex-end; /* Push content to bottom */
+  height: 360px !important; /* Same height as other pages */
+  padding-bottom: 30px; /* Bottom spacing from edge */
+  box-sizing: border-box; /* Include padding in height calculation */
+  overflow-y: visible !important; /* Override auto scroll */
+}
+
+/* ========================================
+   CLIPBOARD ITEMS LIST
+   ======================================== */
+
+/* Container for all clipboard items */
+.clipboard-list {
+  display: flex; /* Flexbox layout */
+  flex-direction: column; /* Stack items vertically */
+  gap: 16px; /* Space between items */
+  padding-right: 8px; /* Right padding for scrollbar space */
+  padding-bottom: 8px; /* Minimal bottom padding */
+  padding-top: 8px; /* Small top padding */
+}
+
+/* ========================================
+   INDIVIDUAL CLIPBOARD ITEM STYLING
+   ======================================== */
+
+/* Each clipboard item - contains text and dropdown menu */
+.clipboard-item {
+  background: #5faee3; /* Blue background */
+  color: #fff; /* White text */
+  border-radius: 18px; /* Rounded corners */
+  padding: 16px 18px; /* Internal spacing */
+  font-size: 1.1rem; /* Text size */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  cursor: pointer; /* Hand cursor on hover */
+  transition: background 0.2s; /* Smooth color transition */
+  display: flex; /* Flexbox for text and actions */
+  align-items: center; /* Vertically center content */
+  justify-content: flex-start; /* Align content to start */
+  position: relative; /* For absolute positioning of dropdown */
+  min-height: 50px; /* Minimum height for consistency */
+}
+
+/* Hover effect - darker blue */
+.clipboard-item:hover {
+  background: #4899c9; /* Darker blue on hover */
+}
+
+/* ========================================
+   CLIPBOARD ITEM CONTENT
+   ======================================== */
+
+/* Text content of clipboard item */
+.clipboard-text {
+  flex: 1; /* Takes remaining space */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Show ... for long text */
+  white-space: nowrap; /* Don't wrap text */
+  margin-right: 60px; /* Prevent overlap with menu button */
+}
+
+/* ========================================
+   DROPDOWN MENU SYSTEM
+   ======================================== */
+
+/* Container for menu button and dropdown */
+.clipboard-actions {
+  position: absolute; /* Position relative to clipboard item */
+  right: 8px; /* 8px from right edge */
+  top: 50%; /* Vertically center */
+  transform: translateY(-50%); /* Adjust for perfect centering */
+  z-index: 10000; /* High z-index to appear above other items */
+}
+
+/* ========================================
+   TWO-DOT MENU BUTTON
+   ======================================== */
+
+/* The two-dot menu button (••) */
+.menu-btn {
+  background: none; /* No background */
+  border: none; /* No border */
+  color: rgb(0, 0, 0); /* Black dots */
+  cursor: pointer; /* Hand cursor */
+  font-size: 20px; /* Large dots */
+  padding: 0; /* No padding */
+  margin-right: 15px; /* Space from edge */
+  line-height: 1; /* Tight line height */
+  position: relative; /* For z-index stacking */
+  z-index: 1; /* Lower than dropdown */
+}
+
+/* ========================================
+   DROPDOWN MENU CONTAINER
+   ======================================== */
+
+/* The dropdown menu that appears when clicking the dots */
+.dropdown-menu {
+  position: absolute; /* Position relative to menu button */
+  top: 100%; /* Appear below button */
+  right: 0; /* Align to right edge */
+  background: white; /* White background */
+  border-radius: 20px; /* Rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Drop shadow */
+  min-width: 100px; /* Minimum width */
+  z-index: 10; /* Above menu button */
+  opacity: 0; /* Hidden by default */
+  visibility: hidden; /* Hidden by default */
+  transform: translateY(-10px); /* Start slightly above */
+  transition: all 0.2s ease; /* Smooth animation */
+}
+
+/* Dropdown menu when visible */
+.dropdown-menu.show {
+  opacity: 1; /* Fully visible */
+  visibility: visible; /* Visible */
+  transform: translateY(0); /* Normal position */
+}
+
+/* ========================================
+   DROPDOWN MENU OPTIONS
+   ======================================== */
+
+/* Individual options in dropdown (Pin, Delete) */
+.dropdown-option {
+  padding: 10px 12px; /* Internal spacing */
+  color: #333; /* Dark text */
+  cursor: pointer; /* Hand cursor */
+  font-size: 14px; /* Text size */
+  transition: background 0.2s; /* Smooth hover effect */
+}
+
+/* Hover effect for dropdown options */
+.dropdown-option:hover {
+  background: #f5f5f5; /* Light gray on hover */
+}
+
+/* Round top corners of first option */
+.dropdown-option:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Round bottom corners of last option */
+.dropdown-option:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* ========================================
+   PINNED ITEM STYLING
+   ======================================== */
+
+/* ========================================
+   PINNED ITEM STYLING
+   ======================================== */
+
+/* Pinned clipboard items have orange background */
+.clipboard-item.pinned {
+  background: #ff9500; /* Orange background for pinned items */
+}
+
+/* Pinned items hover effect */
+.clipboard-item.pinned:hover {
+  background: #e6850e; /* Darker orange on hover */
+}
+
+/* ========================================
+   EMOJI PAGE STYLING
+   ======================================== */
+
+/* Container for emoji grid */
+.emoji-list {
+  display: flex; /* Flexbox layout */
+  flex-wrap: wrap; /* Wrap to new lines */
+  gap: 18px; /* Space between emojis */
+  justify-content: flex-start; /* Align to left */
+  align-items: center; /* Center vertically */
+  padding: 16px 0; /* Top and bottom padding */
+}
+
+/* Individual emoji styling */
+.emoji {
+  font-size: 2.2rem; /* Large emoji size */
+  cursor: pointer; /* Hand cursor */
+  transition: transform 0.1s; /* Smooth scale animation */
+}
+
+/* Emoji hover effect - grows larger */
+.emoji:hover {
+  transform: scale(1.2); /* 20% larger on hover */
+}
+
+/* ========================================
+   SETTINGS PAGE COMPONENTS
+   ======================================== */
+
+/* Each settings section container */
+.settings-section {
+  margin-bottom: 15px; /* Space between sections (reduced by 3px) */
+  display: flex; /* Flexbox layout */
+  align-items: center; /* Vertically center items */
+  gap: 7px; /* Space between elements (reduced by 3px) */
+}
+
+/* Hotkey input field */
+#hotkeyInput {
+  font-size: 1rem; /* Text size (reduced) */
+  padding: 3px 7px; /* Internal spacing (reduced by 3px) */
+  border-radius: 5px; /* Rounded corners (reduced by 3px) */
+  border: 1px solid #b3e3fa; /* Light blue border */
+  background: #eaf6fd; /* Light blue background */
+  color: #333; /* Dark text */
+  width: 117px; /* Fixed width (reduced by 3px) */
+}
+
+/* Edit hotkey button */
+#editHotkeyBtn {
+  padding: 3px 11px; /* Internal spacing (reduced by 3px) */
+  border-radius: 5px; /* Rounded corners (reduced by 3px) */
+  border: none; /* No border */
+  background: #5faee3; /* Blue background */
+  color: #fff; /* White text */
+  cursor: pointer; /* Hand cursor */
+  font-size: 0.9rem; /* Text size (reduced) */
+  transition: background 0.2s; /* Smooth color transition */
+}
+
+/* Edit button hover effect */
+#editHotkeyBtn:hover {
+  background: #4899c9; /* Darker blue on hover */
+}
+
+/* Clear clipboard button - destructive action styling */
+#clearClipboardBtn {
+  padding: 3px 11px; /* Internal spacing (reduced by 3px) */
+  border-radius: 5px; /* Rounded corners (reduced by 3px) */
+  border: none; /* No border */
+  background: #e74c3c; /* Red background (destructive action) */
+  color: #fff; /* White text */
+  cursor: pointer; /* Hand cursor */
+  font-size: 0.9rem; /* Text size (reduced) */
+  transition: background 0.2s; /* Smooth color transition */
+}
+
+/* Clear button hover effect */
+#clearClipboardBtn:hover {
+  background: #c0392b; /* Darker red on hover */
+}
+
+/* Settings information text */
+.settings-info {
+  color: #333; /* Dark text */
+  font-size: 0.9rem; /* Text size (reduced) */
+  margin-bottom: 17px; /* Add space after the text (reduced by 3px) */
+}
+
+/* About section styling */
+.about-section {
+  color: #666; /* Lighter text color */
+  font-size: 0.75rem; /* Small text size */
+  text-align: center; /* Center align */
+  line-height: 1.3; /* Line spacing */
+  margin-top: 15px; /* Space above about section */
+  padding: 8px; /* Internal padding */
+  background: rgba(255, 255, 255, 0.1); /* Very light background */
+  border-radius: 5px; /* Rounded corners */
+  max-width: 300px; /* Limit width */
+}
+
+/* Container for all settings elements */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+/* ========================================
+   FADE OUT ANIMATION
+   ======================================== */
+
+/* Class applied to items being removed */
+.fade-out {
+  animation: fadeOut 0.4s forwards; /* Run fadeOut animation */
+}
+
+/* Keyframe animation for fading out elements */
+/* Keyframe animation for fading out elements */
+@keyframes fadeOut {
+  from {
+    opacity: 1; /* Start fully visible */
+    transform: scale(1); /* Normal size */
+  }
+  to {
+    opacity: 0; /* End invisible */
+    transform: scale(0.95); /* Slightly smaller */
+  }
+}
+
+/* ========================================
+   GLOBAL BODY STYLING
+   ======================================== */
+
+/* Overall page styling */
+body {
+  background: #b3e3fa; /* Light blue background */
+  font-family: Arial, sans-serif; /* Font family */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+
+/* ========================================
+   MAIN CONTAINER
+   ======================================== */
+
+/* Main clipboard application container */
+.container {
+  background: #d2eafd; /* Light blue background */
+  border-radius: 32px; /* Large rounded corners */
+  border: 2px solid #d2eafd; /* Border same as background */
+  margin: 20px auto; /* Center horizontally with top/bottom margin */
+  width: 400px; /* Fixed width */
+  height: 450px; /* Fixed height as requested */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  display: flex; /* Flexbox layout */
+  flex-direction: column; /* Stack header and content vertically */
+}
+
+/* ========================================
+   HEADER SECTION
+   ======================================== */
+
+/* Top header containing navigation icons */
+.header {
+  display: flex; /* Flexbox layout */
+  align-items: center; /* Vertically center icons */
+  background: #b3e3fa; /* Medium blue background */
+  border-top-left-radius: 32px; /* Round top left corner */
+  border-top-right-radius: 32px; /* Round top right corner */
+  padding: 10px 20px 0 20px; /* Padding (no bottom padding) */
+  gap: 32px; /* Space between icons */
+  height: 70px; /* Fixed header height */
+  position: relative; /* For absolute positioning of children */
+}
+
+/* Spacer to push close button to the right */
+.header-spacer {
+  flex: 1; /* Takes remaining space */
+}
+
+/* ========================================
+   HEADER ICON BUTTONS
+   ======================================== */
+
+/* Styling for all icon buttons in header */
+.icon-btn {
+  background: none; /* No background */
+  border: none; /* No border */
+  outline: none; /* No focus outline */
+  cursor: pointer; /* Hand cursor */
+  padding: 0 8px; /* Horizontal padding */
+  height: 48px; /* Fixed height */
+  width: 48px; /* Fixed width (square) */
+  display: flex; /* Flexbox to center icon */
+  align-items: center; /* Vertically center icon */
+  justify-content: center; /* Horizontally center icon */
+  transition: background 0.2s; /* Smooth background transition */
+  border-radius: 12px; /* Rounded corners */
+}
+
+/* Icon button hover effect */
+.icon-btn:hover {
+  background: #e0f4ff; /* Light blue background on hover */
+}
+
+/* Icon images inside buttons */
+.icon-btn img {
+  width: 36px; /* Icon width */
+  height: 36px; /* Icon height */
+}
+
+/* ========================================
+   CLIPBOARD AREA (LEGACY - NOT USED)
+   ======================================== */
+
+/* Legacy clipboard area styling - replaced by clipboard-page */
+.clipboard-area {
+  flex: 1; /* Takes remaining space */
+  display: flex; /* Flexbox layout */
+  align-items: flex-start; /* Align to top */
+  justify-content: center; /* Center horizontally */
+  padding: 40px 0 0 0; /* Top padding only */
+}
+
+/* Legacy clipboard text area - replaced by clipboard items */
+#clipboardText {
+  width: 90%; /* 90% width */
+  min-height: 100px; /* Minimum height */
+  background: #5faee3; /* Blue background */
+  color: #fff; /* White text */
+  border: none; /* No border */
+  border-radius: 24px; /* Large rounded corners */
+  font-size: 1.2rem; /* Text size */
+  padding: 18px 16px 18px 25px; /* Internal spacing */
+  resize: none; /* Disable resize */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  outline: none; /* No focus outline */
+  margin-bottom: 40px; /* Bottom margin */
+}
+
+.settings-image {
+  display: flex;
+  justify-content: center;
+
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-top: 35px;
+}
+
+.settings-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - MOBILE
+   ======================================== */
+
+/* Mobile styles for screens smaller than 600px */
+@media (max-width: 600px) {
+  .container {
+    width: 400px; /* Keep fixed width on mobile */
+    height: 450px; /* Keep fixed height on mobile */
+  }
+
+  /* Reduce header spacing on mobile */
+  .header {
+    gap: 16px; /* Smaller gap between icons */
+    padding: 10px 8px 0 8px; /* Reduced horizontal padding */
+  }
+
+  /* Smaller text in legacy clipboard area on mobile */
+  #clipboardText {
+    font-size: 1rem; /* Smaller font size on mobile */
+  }
+}
+
+/* ========================================
+   END OF STYLESHEET
+   ======================================== */

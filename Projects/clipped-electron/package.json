@@ -1,0 +1,71 @@
+{
+  "name": "clipped",
+  "version": "1.0.0",
+  "description": "A professional clipboard manager for Linux desktop environments",
+  "main": "src/main.js",
+  "author": "Your Name",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/clipped",
+  "keywords": [
+    "clipboard",
+    "manager",
+    "linux",
+    "electron",
+    "desktop",
+    "productivity"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux",
+    "dist": "electron-builder --publish=never",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "clipboardy": "^3.0.0",
+    "node-global-key-listener": "^0.1.1"
+  },
+  "build": {
+    "appId": "com.clipped.app",
+    "productName": "Clipped",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Utility",
+      "icon": "assets/icon.png",
+      "desktop": {
+        "Name": "Clipped",
+        "Comment": "Clipboard Manager for Linux",
+        "Keywords": "clipboard;manager;copy;paste;history",
+        "StartupWMClass": "clipped"
+      }
+    }
+  }
+}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clipboard UI</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div>
+      <div class="container">
+        <div class="header">
+          <button class="icon-btn" id="noteBtn" title="Note">
+            <img src="assets/note.png" alt="Note" />
+          </button>
+          <button class="icon-btn" id="fingerBtn" title="Finger">
+            <img src="assets/enoji.png" alt="Finger" />
+          </button>
+          <button class="icon-btn" id="settingsBtn" title="Settings">
+            <img src="assets/settings.png" alt="Settings" />
+          </button>
+          <div class="header-spacer"></div>
+          <button class="icon-btn" id="deleteBtn" title="Clear Clipboard">
+            <img src="assets/x.png" alt="Delete" />
+          </button>
+        </div>
+        <div class="clipboard-content">
+          <!-- Clipboard Page -->
+          <div class="clipboard-page" id="clipboardPage">
+            <div class="clipboard-list">
+              <div class="clipboard-item">
+                <div class="clipboard-text">
+                  Lorem Ipsum Something that should so2E5A882E5A88...
+                </div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">Another copied text snippet</div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">https://example.com</div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">1234567890</div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">
+                  function calculateTotal(items) { return items.reduce((sum,
+                  item) => sum + item.price, 0); }
+                </div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">john.doe@example.com</div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">
+                  Meeting scheduled for tomorrow at 3 PM - Conference Room B
+                </div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">
+                  git clone https://github.com/user/repository.git
+                </div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">Password: Tr0ub4dor&3</div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">rgb(95, 174, 227)</div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+              <div class="clipboard-item">
+                <div class="clipboard-text">
+                  Buy groceries: milk, bread, eggs, apples, chicken breast
+                </div>
+                <div class="clipboard-actions">
+                  <button class="menu-btn" title="Options">••</button>
+                  <div class="dropdown-menu">
+                    <div class="dropdown-option pin-option">Pin</div>
+                    <div class="dropdown-option delete-option">Delete</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Emoji Page -->
+          <div class="clipboard-page" id="emojiPage" style="display: none">
+            <div class="emoji-list">
+              <span class="emoji">😀</span>
+              <span class="emoji">😂</span>
+              <span class="emoji">👍</span>
+              <span class="emoji">🔥</span>
+              <span class="emoji">🎉</span>
+              <span class="emoji">❤️</span>
+            </div>
+          </div>
+          <!-- Settings Page -->
+          <div class="clipboard-page" id="settingsPage" style="display: none">
+            <div class="settings-container">
+              <div class="settings-image">
+                <img src="assets/atik0.gif" alt="myface :'3 " />
+              </div>
+              <div class="about-section">
+                Hi! This is irony! I try to make useful things that are not
+                available in Linux!<br />
+                Contact me: atikrony.me || atiqrony.aiub@gmail.com
+              </div>
+
+              <div class="settings-section">
+                <label for="hotkeyInput">Set Hotkey:</label>
+                <input
+                  id="hotkeyInput"
+                  type="text"
+                  value="Super + V"
+                  readonly
+                />
+                <button id="editHotkeyBtn">Edit</button>
+              </div>
+
+              <div class="settings-info">Default hotkey: <b>Super + V</b></div>
+              <div class="settings-section">
+                <label>Clipboard Management:</label>
+                <button id="clearClipboardBtn">Clear All Items</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="script.js"></script>
+    </div>
+  </body>
+</html>
