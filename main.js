@@ -77,12 +77,13 @@ class NativeClipboardManager {
 
   createWindow() {
     this.mainWindow = new BrowserWindow({
-      width: 450,
-      height: 600,
+      width: 360, // 450 * 0.8 = 360
+      height: 480, // 600 * 0.8 = 480
       show: false,
       frame: false, // Custom window without system decorations
       resizable: false,
       skipTaskbar: true,
+      transparent: true, // Enable transparency for rounded effect
       icon: path.join(__dirname, "assets/note.png"),
       webPreferences: {
         nodeIntegration: false,
@@ -473,10 +474,10 @@ class NativeClipboardManager {
         clipboard.writeText(item.content);
       }
 
-      // Hide our window so focus returns to previous app
+      // Always hide window after paste
       this.hideWindow();
 
-      const delayMs = 10; // faster paste response
+      const delayMs = 1; // Ultra-fast paste response
 
       const runPasteSequence = () => {
         const wayland = isWaylandSession();
@@ -486,13 +487,13 @@ class NativeClipboardManager {
           commands.push("wtype -M ctrl v -m ctrl");
           if (item.type !== "image") {
             const textArg = shellEscape(item.content);
-            commands.push(`wtype --delay 1 ${textArg}`);
+            commands.push(`wtype --delay 0 ${textArg}`); // Removed delay
           }
         } else {
           commands.push("xdotool key --clearmodifiers ctrl+v");
           if (item.type !== "image") {
             const textArg = shellEscape(item.content);
-            commands.push(`xdotool type --clearmodifiers --delay 1 ${textArg}`);
+            commands.push(`xdotool type --clearmodifiers --delay 0 ${textArg}`); // Removed delay
             commands.push(
               "xclip -selection clipboard -o | xdotool type --clearmodifiers --file -"
             );
@@ -505,18 +506,17 @@ class NativeClipboardManager {
         });
       };
 
-      setTimeout(() => {
-        if (!isWaylandSession() && this.lastActiveWindowId) {
-          exec(
-            `xdotool windowactivate --sync ${this.lastActiveWindowId}`,
-            () => {
-              runPasteSequence();
-            }
-          );
-        } else {
-          runPasteSequence();
-        }
-      }, delayMs);
+      // Execute paste immediately with minimal delay
+      if (!isWaylandSession() && this.lastActiveWindowId) {
+        exec(
+          `xdotool windowactivate --sync ${this.lastActiveWindowId}`,
+          () => {
+            runPasteSequence();
+          }
+        );
+      } else {
+        runPasteSequence();
+      }
     });
   }
 

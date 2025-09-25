@@ -360,7 +360,7 @@ class NativeClipboardApp {
   async pasteItem(item) {
     try {
       await window.clipboardAPI.pasteItem(item);
-      // Window will be hidden automatically by the main process
+      // Main process handles hiding based on preferences
     } catch (error) {
       // Fallback to copy for text items
       if (item.type !== "image") {
@@ -1381,7 +1381,7 @@ class NativeClipboardApp {
       // Add to recent emojis
       await this.addRecentEmoji(emoji);
 
-      // Paste the emoji
+      // Paste the emoji using the regular paste method
       try {
         await window.clipboardAPI.pasteItem({
           type: "text",
