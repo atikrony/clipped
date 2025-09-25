@@ -54,7 +54,12 @@ body {
 }
 
 .container {
-  background: rgba(210, 234, 253, 0.95); /* Solid background with slight transparency */
+  background: rgba(
+    210,
+    234,
+    253,
+    0.95
+  ); /* Solid background with slight transparency */
   border-radius: var(--border-radius-large); /* 26px rounded corners */
   border: 2px solid var(--border-color);
   width: 100%;

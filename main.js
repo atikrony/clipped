@@ -508,12 +508,9 @@ class NativeClipboardManager {
 
       // Execute paste immediately with minimal delay
       if (!isWaylandSession() && this.lastActiveWindowId) {
-        exec(
-          `xdotool windowactivate --sync ${this.lastActiveWindowId}`,
-          () => {
-            runPasteSequence();
-          }
-        );
+        exec(`xdotool windowactivate --sync ${this.lastActiveWindowId}`, () => {
+          runPasteSequence();
+        });
       } else {
         runPasteSequence();
       }
