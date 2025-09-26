@@ -233,13 +233,13 @@ class NativeClipboardApp {
     });
 
     // Render items
-    filteredHistory.forEach((item, index) => {
-      const itemElement = this.createClipboardItem(item, index);
+    filteredHistory.forEach((item, displayIndex) => {
+      const itemElement = this.createClipboardItem(item, item.id);
       clipboardList.appendChild(itemElement);
     });
   }
 
-  createClipboardItem(item, index) {
+  createClipboardItem(item, itemId) {
     const itemDiv = document.createElement("div");
     itemDiv.className = `clipboard-item ${item.pinned ? "pinned" : ""} ${
       item.type || "text"
@@ -342,14 +342,14 @@ class NativeClipboardApp {
     const pinOption = itemDiv.querySelector(".pin-option");
     pinOption.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.togglePin(index);
+      this.togglePin(itemId);
       this.closeAllDropdowns();
     });
 
     const deleteOption = itemDiv.querySelector(".delete-option");
     deleteOption.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.deleteItem(index);
+      this.deleteItem(itemId);
       this.closeAllDropdowns();
     });
 
@@ -394,9 +394,9 @@ class NativeClipboardApp {
     }
   }
 
-  async togglePin(index) {
+  async togglePin(itemId) {
     try {
-      await window.clipboardAPI.togglePin(index);
+      await window.clipboardAPI.togglePin(itemId);
       await this.loadClipboardHistory();
       this.renderClipboardHistory();
     } catch (error) {
@@ -404,9 +404,9 @@ class NativeClipboardApp {
     }
   }
 
-  async deleteItem(index) {
+  async deleteItem(itemId) {
     try {
-      await window.clipboardAPI.deleteItem(index);
+      await window.clipboardAPI.deleteItem(itemId);
       await this.loadClipboardHistory();
       this.renderClipboardHistory();
     } catch (error) {

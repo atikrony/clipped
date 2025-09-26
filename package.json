@@ -41,7 +41,11 @@
       "preload.js",
       "index.html",
       "style.css",
-      "assets/**/*"
+      "assets/**/*",
+      "uninstall.sh",
+      "uninstall-deb.sh",
+      "UNINSTALL.md",
+      "!build"
     ],
     "linux": {
       "target": [
@@ -59,7 +63,23 @@
         }
       ],
       "category": "Utility",
-      "icon": "assets/note.png"
+      "icon": "assets/note.png",
+      "desktop": {
+        "Name": "Clipped",
+        "Comment": "Native Linux Clipboard Manager with Real System Integration",
+        "GenericName": "Clipboard Manager",
+        "Keywords": "clipboard;manager;copy;paste;productivity",
+        "StartupNotify": "false",
+        "Terminal": "false",
+        "Categories": "Utility;System;"
+      },
+      "maintainer": "Clipped Developer <dev@clipped.com>",
+      "vendor": "Clipped",
+      "synopsis": "Native Linux Clipboard Manager",
+      "description": "A powerful clipboard manager with system tray integration, global hotkeys, and emoji support. Manage your clipboard history with ease and boost your productivity."
+    },
+    "deb": {
+      "afterInstall": "build/postinstall.sh"
     }
   }
 }

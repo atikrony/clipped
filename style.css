@@ -222,7 +222,7 @@ body {
 
 .clipboard-text {
   flex: 1;
-  margin-right: var(--spacing-md);
+  margin-right: 44px; /* Increased from var(--spacing-md) to ensure dropdown doesn't overlap */
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -245,7 +245,7 @@ body {
 
 .image-container {
   flex: 1;
-  margin-right: var(--spacing-md);
+  margin-right: 44px; /* Match text margin to prevent dropdown overlap */
   text-align: center;
   display: flex;
   align-items: center;
@@ -288,7 +288,8 @@ body {
 .clipboard-actions {
   position: absolute;
   right: 8px;
-  top: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 10000;
 }
 

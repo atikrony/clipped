@@ -72,6 +72,9 @@ class NativeClipboardManager {
     this.startClipboardWatcher();
     this.setupAppEvents();
 
+    // App starts in background - window only shows when triggered by hotkey or tray click
+    // No automatic window showing on startup
+
     console.log("Native Clipboard Manager initialized successfully!");
   }
 
@@ -217,10 +220,13 @@ class NativeClipboardManager {
     });
 
     // Pin/unpin item
-    ipcMain.handle("toggle-pin", (event, index) => {
-      if (this.clipboardHistory[index]) {
-        this.clipboardHistory[index].pinned =
-          !this.clipboardHistory[index].pinned;
+    ipcMain.handle("toggle-pin", (event, itemId) => {
+      const itemIndex = this.clipboardHistory.findIndex(
+        (item) => item.id === itemId
+      );
+      if (itemIndex !== -1) {
+        this.clipboardHistory[itemIndex].pinned =
+          !this.clipboardHistory[itemIndex].pinned;
         this.saveHistory();
         return true;
       }
@@ -228,9 +234,12 @@ class NativeClipboardManager {
     });
 
     // Delete item
-    ipcMain.handle("delete-item", (event, index) => {
-      if (this.clipboardHistory[index]) {
-        this.clipboardHistory.splice(index, 1);
+    ipcMain.handle("delete-item", (event, itemId) => {
+      const itemIndex = this.clipboardHistory.findIndex(
+        (item) => item.id === itemId
+      );
+      if (itemIndex !== -1) {
+        this.clipboardHistory.splice(itemIndex, 1);
         this.saveHistory();
         return true;
       }
@@ -803,8 +812,10 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on("second-instance", () => {
+    // When user tries to start app again, just focus the existing instance
+    // but don't show the window - let them use hotkey or tray icon
     if (clipboardManager.mainWindow) {
-      clipboardManager.showWindow();
+      console.log("Second instance detected - keeping app in background");
     }
   });
 }
