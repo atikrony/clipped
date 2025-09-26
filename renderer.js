@@ -250,17 +250,11 @@ class NativeClipboardApp {
     let titleContent;
 
     if (item.type === "image") {
-      console.log("Processing image item");
-      console.log("Image content starts with:", item.content.substring(0, 50));
-      console.log("Image content length:", item.content.length);
-
       itemDiv.innerHTML = `
         <div class="image-container">
           <img src="${
             item.content
-          }" alt="Clipboard Image" class="clipboard-image" 
-               onerror="console.log('Image failed to load:', this.src)" 
-               onload="console.log('Image loaded successfully')" />
+          }" alt="Clipboard Image" class="clipboard-image" />
         </div>
         <div class="clipboard-actions">
           <button class="menu-btn" title="Options">⋮</button>
@@ -295,9 +289,7 @@ class NativeClipboardApp {
         <div class="image-container">
           <img src="${
             item.content
-          }" alt="Clipboard Image" class="clipboard-image" 
-               onerror="console.log('Image failed to load. Source:', this.src.substring(0, 100))" 
-               onload="console.log('Image loaded successfully')" />
+          }" alt="Clipboard Image" class="clipboard-image" />
         </div>
         <div class="clipboard-actions">
           <button class="menu-btn" title="Options">⋮</button>
@@ -1544,7 +1536,6 @@ class NativeClipboardApp {
         settingsInfo.textContent = hotkeyString;
       }
       document.getElementById("hotkeyInput").value = hotkeyString;
-      console.log("Hotkey saved:", hotkeyString);
     } catch (error) {
       console.error("Failed to save hotkey:", error);
       alert("Failed to save hotkey. Make sure it's a valid combination.");

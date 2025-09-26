@@ -1,6 +1,6 @@
 {
   "name": "clipped",
-  "version": "1.0.2",
+  "version": "1.0.8",
   "description": "Native Linux Clipboard Manager with Real System Integration",
   "main": "main.js",
   "author": {
@@ -74,7 +74,8 @@
         "Keywords": "clipboard;manager;copy;paste;productivity",
         "StartupNotify": "false",
         "Terminal": "false",
-        "Categories": "Utility;System;"
+        "Categories": "Utility;System;",
+        "Icon": "clipped"
       },
       "maintainer": "Clipped Developer <dev@clipped.com>",
       "vendor": "Clipped",
