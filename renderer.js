@@ -233,13 +233,13 @@ class NativeClipboardApp {
     });
 
     // Render items
-    filteredHistory.forEach((item, index) => {
-      const itemElement = this.createClipboardItem(item, index);
+    filteredHistory.forEach((item, displayIndex) => {
+      const itemElement = this.createClipboardItem(item, item.id);
       clipboardList.appendChild(itemElement);
     });
   }
 
-  createClipboardItem(item, index) {
+  createClipboardItem(item, itemId) {
     const itemDiv = document.createElement("div");
     itemDiv.className = `clipboard-item ${item.pinned ? "pinned" : ""} ${
       item.type || "text"
@@ -250,17 +250,11 @@ class NativeClipboardApp {
     let titleContent;
 
     if (item.type === "image") {
-      console.log("Processing image item");
-      console.log("Image content starts with:", item.content.substring(0, 50));
-      console.log("Image content length:", item.content.length);
-
       itemDiv.innerHTML = `
         <div class="image-container">
           <img src="${
             item.content
-          }" alt="Clipboard Image" class="clipboard-image" 
-               onerror="console.log('Image failed to load:', this.src)" 
-               onload="console.log('Image loaded successfully')" />
+          }" alt="Clipboard Image" class="clipboard-image" />
         </div>
         <div class="clipboard-actions">
           <button class="menu-btn" title="Options">⋮</button>
@@ -295,9 +289,7 @@ class NativeClipboardApp {
         <div class="image-container">
           <img src="${
             item.content
-          }" alt="Clipboard Image" class="clipboard-image" 
-               onerror="console.log('Image failed to load. Source:', this.src.substring(0, 100))" 
-               onload="console.log('Image loaded successfully')" />
+          }" alt="Clipboard Image" class="clipboard-image" />
         </div>
         <div class="clipboard-actions">
           <button class="menu-btn" title="Options">⋮</button>
@@ -342,14 +334,14 @@ class NativeClipboardApp {
     const pinOption = itemDiv.querySelector(".pin-option");
     pinOption.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.togglePin(index);
+      this.togglePin(itemId);
       this.closeAllDropdowns();
     });
 
     const deleteOption = itemDiv.querySelector(".delete-option");
     deleteOption.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.deleteItem(index);
+      this.deleteItem(itemId);
       this.closeAllDropdowns();
     });
 
@@ -360,7 +352,7 @@ class NativeClipboardApp {
   async pasteItem(item) {
     try {
       await window.clipboardAPI.pasteItem(item);
-      // Window will be hidden automatically by the main process
+      // Main process handles hiding based on preferences
     } catch (error) {
       // Fallback to copy for text items
       if (item.type !== "image") {
@@ -394,9 +386,9 @@ class NativeClipboardApp {
     }
   }
 
-  async togglePin(index) {
+  async togglePin(itemId) {
     try {
-      await window.clipboardAPI.togglePin(index);
+      await window.clipboardAPI.togglePin(itemId);
       await this.loadClipboardHistory();
       this.renderClipboardHistory();
     } catch (error) {
@@ -404,9 +396,9 @@ class NativeClipboardApp {
     }
   }
 
-  async deleteItem(index) {
+  async deleteItem(itemId) {
     try {
-      await window.clipboardAPI.deleteItem(index);
+      await window.clipboardAPI.deleteItem(itemId);
       await this.loadClipboardHistory();
       this.renderClipboardHistory();
     } catch (error) {
@@ -1381,7 +1373,7 @@ class NativeClipboardApp {
       // Add to recent emojis
       await this.addRecentEmoji(emoji);
 
-      // Paste the emoji
+      // Paste the emoji using the regular paste method
       try {
         await window.clipboardAPI.pasteItem({
           type: "text",
@@ -1544,7 +1536,6 @@ class NativeClipboardApp {
         settingsInfo.textContent = hotkeyString;
       }
       document.getElementById("hotkeyInput").value = hotkeyString;
-      console.log("Hotkey saved:", hotkeyString);
     } catch (error) {
       console.error("Failed to save hotkey:", error);
       alert("Failed to save hotkey. Make sure it's a valid combination.");

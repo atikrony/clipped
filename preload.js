@@ -13,8 +13,8 @@ contextBridge.exposeInMainWorld("clipboardAPI", {
   copyImage: (dataURL) => ipcRenderer.invoke("copy-image", dataURL),
 
   // Item operations
-  togglePin: (index) => ipcRenderer.invoke("toggle-pin", index),
-  deleteItem: (index) => ipcRenderer.invoke("delete-item", index),
+  togglePin: (itemId) => ipcRenderer.invoke("toggle-pin", itemId),
+  deleteItem: (itemId) => ipcRenderer.invoke("delete-item", itemId),
   clearHistory: () => ipcRenderer.invoke("clear-history"),
 
   // Search

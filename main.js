@@ -65,6 +65,9 @@ class NativeClipboardManager {
   async initialize() {
     await app.whenReady();
 
+    // Check if app is being started from autostart
+    const isStartup = process.argv.includes("--startup");
+
     this.createWindow();
     this.createTray();
     this.setupGlobalShortcuts();
@@ -72,17 +75,19 @@ class NativeClipboardManager {
     this.startClipboardWatcher();
     this.setupAppEvents();
 
-    console.log("Native Clipboard Manager initialized successfully!");
+    // App starts in background - window only shows when triggered by hotkey or tray click
+    // No automatic window showing on startup
   }
 
   createWindow() {
     this.mainWindow = new BrowserWindow({
-      width: 450,
-      height: 600,
+      width: 360, // 450 * 0.8 = 360
+      height: 480, // 600 * 0.8 = 480
       show: false,
       frame: false, // Custom window without system decorations
       resizable: false,
       skipTaskbar: true,
+      transparent: true, // Enable transparency for rounded effect
       icon: path.join(__dirname, "assets/note.png"),
       webPreferences: {
         nodeIntegration: false,
@@ -141,16 +146,14 @@ class NativeClipboardManager {
   setupGlobalShortcuts() {
     // Get the saved hotkey from settings (default to Super+V)
     const primaryHotkey = store.get("hotkey", "Super+V");
-    console.log(`Attempting to register primary hotkey: ${primaryHotkey}`);
+    // Normalize hotkey format - remove spaces around + for Electron compatibility
+    const normalizedHotkey = primaryHotkey.replace(/\s*\+\s*/g, "+");
 
     try {
-      globalShortcut.register(primaryHotkey, () => {
+      globalShortcut.register(normalizedHotkey, () => {
         this.toggleWindow();
       });
-      console.log(`Global shortcut ${primaryHotkey} registered successfully`);
     } catch (error) {
-      console.error(`Failed to register ${primaryHotkey}:`, error);
-
       // If custom hotkey fails, try fallback options
       const fallbacks = ["Super+V", "Alt+V", "CommandOrControl+Alt+V"];
       let registered = false;
@@ -159,26 +162,21 @@ class NativeClipboardManager {
         if (fallback !== primaryHotkey) {
           // Don't try the same key again
           try {
-            console.log(`Trying fallback: ${fallback}`);
             globalShortcut.register(fallback, () => {
               this.toggleWindow();
             });
-            console.log(`Global shortcut ${fallback} registered as fallback`);
             // Update stored hotkey to the working fallback
             store.set("hotkey", fallback);
             registered = true;
             break;
           } catch (fallbackError) {
-            console.error(
-              `Failed to register fallback ${fallback}:`,
-              fallbackError
-            );
+            // Silent fallback attempt
           }
         }
       }
 
       if (!registered) {
-        console.error("Failed to register any global shortcut!");
+        // Silent failure - no hotkey registered
       }
     }
   }
@@ -216,10 +214,13 @@ class NativeClipboardManager {
     });
 
     // Pin/unpin item
-    ipcMain.handle("toggle-pin", (event, index) => {
-      if (this.clipboardHistory[index]) {
-        this.clipboardHistory[index].pinned =
-          !this.clipboardHistory[index].pinned;
+    ipcMain.handle("toggle-pin", (event, itemId) => {
+      const itemIndex = this.clipboardHistory.findIndex(
+        (item) => item.id === itemId
+      );
+      if (itemIndex !== -1) {
+        this.clipboardHistory[itemIndex].pinned =
+          !this.clipboardHistory[itemIndex].pinned;
         this.saveHistory();
         return true;
       }
@@ -227,9 +228,12 @@ class NativeClipboardManager {
     });
 
     // Delete item
-    ipcMain.handle("delete-item", (event, index) => {
-      if (this.clipboardHistory[index]) {
-        this.clipboardHistory.splice(index, 1);
+    ipcMain.handle("delete-item", (event, itemId) => {
+      const itemIndex = this.clipboardHistory.findIndex(
+        (item) => item.id === itemId
+      );
+      if (itemIndex !== -1) {
+        this.clipboardHistory.splice(itemIndex, 1);
         this.saveHistory();
         return true;
       }
@@ -280,28 +284,27 @@ class NativeClipboardManager {
 
     ipcMain.handle("set-hotkey", (event, hotkeyString) => {
       try {
+        // Normalize hotkey format - remove spaces around + for Electron compatibility
+        const normalizedHotkey = hotkeyString.replace(/\s*\+\s*/g, "+");
+
         // Unregister all existing shortcuts first
         globalShortcut.unregisterAll();
 
-        // Save new hotkey to store
-        store.set("hotkey", hotkeyString);
+        // Save normalized hotkey to store
+        store.set("hotkey", normalizedHotkey);
 
         // Register the new hotkey directly
-        globalShortcut.register(hotkeyString, () => {
+        globalShortcut.register(normalizedHotkey, () => {
           this.toggleWindow();
         });
 
-        console.log(`Custom hotkey ${hotkeyString} registered successfully`);
         return true;
       } catch (error) {
-        console.error("Failed to set custom hotkey:", error);
-
         // If custom hotkey fails, fallback to setupGlobalShortcuts
         try {
           this.setupGlobalShortcuts();
           return true;
         } catch (fallbackError) {
-          console.error("Failed to register any hotkey:", fallbackError);
           return false;
         }
       }
@@ -473,10 +476,10 @@ class NativeClipboardManager {
         clipboard.writeText(item.content);
       }
 
-      // Hide our window so focus returns to previous app
+      // Always hide window after paste
       this.hideWindow();
 
-      const delayMs = 10; // faster paste response
+      const delayMs = 1; // Ultra-fast paste response
 
       const runPasteSequence = () => {
         const wayland = isWaylandSession();
@@ -486,13 +489,13 @@ class NativeClipboardManager {
           commands.push("wtype -M ctrl v -m ctrl");
           if (item.type !== "image") {
             const textArg = shellEscape(item.content);
-            commands.push(`wtype --delay 1 ${textArg}`);
+            commands.push(`wtype --delay 0 ${textArg}`); // Removed delay
           }
         } else {
           commands.push("xdotool key --clearmodifiers ctrl+v");
           if (item.type !== "image") {
             const textArg = shellEscape(item.content);
-            commands.push(`xdotool type --clearmodifiers --delay 1 ${textArg}`);
+            commands.push(`xdotool type --clearmodifiers --delay 0 ${textArg}`); // Removed delay
             commands.push(
               "xclip -selection clipboard -o | xdotool type --clearmodifiers --file -"
             );
@@ -505,18 +508,14 @@ class NativeClipboardManager {
         });
       };
 
-      setTimeout(() => {
-        if (!isWaylandSession() && this.lastActiveWindowId) {
-          exec(
-            `xdotool windowactivate --sync ${this.lastActiveWindowId}`,
-            () => {
-              runPasteSequence();
-            }
-          );
-        } else {
+      // Execute paste immediately with minimal delay
+      if (!isWaylandSession() && this.lastActiveWindowId) {
+        exec(`xdotool windowactivate --sync ${this.lastActiveWindowId}`, () => {
           runPasteSequence();
-        }
-      }, delayMs);
+        });
+      } else {
+        runPasteSequence();
+      }
     });
   }
 
@@ -543,10 +542,8 @@ class NativeClipboardManager {
 
   showWindow() {
     if (this.mainWindow) {
-      console.log("showWindow called - positioning at cursor...");
       // Position at cursor BEFORE showing to avoid visual jump
       this.positionAtCursor(() => {
-        console.log("positionAtCursor callback - showing window");
         this.mainWindow.show();
         this.mainWindow.focus();
       });
@@ -564,14 +561,10 @@ class NativeClipboardManager {
 
     // Prevent double-trigger with debouncing
     if (this.toggleInProgress) {
-      console.log("toggleWindow called but already in progress - ignoring");
       return;
     }
 
     this.toggleInProgress = true;
-    console.log(
-      `toggleWindow called - window visible: ${this.mainWindow.isVisible()}`
-    );
 
     if (this.mainWindow.isVisible()) {
       this.hideWindow();
@@ -582,7 +575,6 @@ class NativeClipboardManager {
       // Reset the flag after a longer delay to allow show to complete
       setTimeout(() => {
         this.toggleInProgress = false;
-        console.log("toggleWindow debounce reset");
       }, 500);
     }
   }
@@ -610,108 +602,80 @@ class NativeClipboardManager {
 
       // Get the window with keyboard focus and use mouse position within that window
       if (!isWaylandSession()) {
-        exec("xdotool getwindowfocus", (err, stdout) => {
+        exec("xdotool getwindowfocus", { timeout: 1000 }, (err, stdout) => {
           if (!err && stdout) {
             const windowId = stdout.trim();
             // Get window name to verify it's VS Code
-            exec(`xdotool getwindowname ${windowId}`, (err2, windowName) => {
-              const name = windowName ? windowName.trim() : "Unknown";
+            exec(
+              `xdotool getwindowname ${windowId}`,
+              { timeout: 1000 },
+              (err2, windowName) => {
+                const name = windowName ? windowName.trim() : "Unknown";
 
-              // If it's VS Code, use mouse position (which should be near text cursor)
-              if (
-                name.includes("Visual Studio Code") ||
-                name.includes("Code")
-              ) {
-                const cursorPoint = screen.getCursorScreenPoint();
+                // If it's VS Code, use mouse position (which should be near text cursor)
+                if (
+                  name.includes("Visual Studio Code") ||
+                  name.includes("Code")
+                ) {
+                  const cursorPoint = screen.getCursorScreenPoint();
 
-                // Position popup near mouse cursor within VS Code
-                let x = cursorPoint.x + 15;
-                let y = cursorPoint.y + 15;
+                  // Position popup near mouse cursor within VS Code
+                  let x = cursorPoint.x + 15;
+                  let y = cursorPoint.y + 15;
 
-                // Keep window within screen bounds
-                if (x + windowBounds.width > width) {
-                  x = cursorPoint.x - windowBounds.width - 15;
-                }
-                if (y + windowBounds.height > height) {
-                  y = cursorPoint.y - windowBounds.height - 15;
-                }
-
-                // Ensure minimum distance from screen edges
-                x = Math.max(10, Math.min(x, width - windowBounds.width - 10));
-                y = Math.max(
-                  10,
-                  Math.min(y, height - windowBounds.height - 10)
-                );
-
-                console.log(`Focused on VS Code: "${name}"`);
-                console.log(
-                  `Using mouse position: ${cursorPoint.x}, ${cursorPoint.y}`
-                );
-                console.log(`Setting popup position to: ${x}, ${y}`);
-                this.mainWindow.setPosition(x, y);
-                if (callback) callback();
-              } else {
-                // If not VS Code, try to get window geometry
-                exec(
-                  `xdotool getwindowgeometry --shell ${windowId}`,
-                  (err3, stdout3) => {
-                    if (!err3 && stdout3) {
-                      const lines = stdout3.trim().split("\n");
-                      let activeX = 0,
-                        activeY = 0,
-                        activeWidth = 800,
-                        activeHeight = 600;
-
-                      for (const line of lines) {
-                        if (line.startsWith("X="))
-                          activeX = parseInt(line.split("=")[1]);
-                        else if (line.startsWith("Y="))
-                          activeY = parseInt(line.split("=")[1]);
-                        else if (line.startsWith("WIDTH="))
-                          activeWidth = parseInt(line.split("=")[1]);
-                        else if (line.startsWith("HEIGHT="))
-                          activeHeight = parseInt(line.split("=")[1]);
-                      }
-
-                      let x = activeX + Math.round(activeWidth * 0.3);
-                      let y = activeY + Math.round(activeHeight * 0.4);
-
-                      if (x + windowBounds.width > width) {
-                        x = activeX + activeWidth - windowBounds.width - 20;
-                      }
-                      if (y + windowBounds.height > height) {
-                        y = activeY + activeHeight - windowBounds.height - 20;
-                      }
-
-                      x = Math.max(
-                        10,
-                        Math.min(x, width - windowBounds.width - 10)
-                      );
-                      y = Math.max(
-                        10,
-                        Math.min(y, height - windowBounds.height - 10)
-                      );
-
-                      console.log(`Focused on non-VS Code: "${name}"`);
-                      console.log(
-                        `Using window geometry: ${activeX},${activeY} ${activeWidth}x${activeHeight}`
-                      );
-                      console.log(`Setting popup position to: ${x}, ${y}`);
-                      this.mainWindow.setPosition(x, y);
-                      if (callback) callback();
-                    } else {
-                      console.log(
-                        "Could not get window geometry, using fallback"
-                      );
-                      this.positionAtPointer();
-                      if (callback) callback();
-                    }
+                  // Keep window within screen bounds
+                  if (x + windowBounds.width > width) {
+                    x = cursorPoint.x - windowBounds.width - 15;
                   }
-                );
+                  if (y + windowBounds.height > height) {
+                    y = cursorPoint.y - windowBounds.height - 15;
+                  }
+
+                  // Ensure minimum distance from screen edges
+                  x = Math.max(
+                    10,
+                    Math.min(x, width - windowBounds.width - 10)
+                  );
+                  y = Math.max(
+                    10,
+                    Math.min(y, height - windowBounds.height - 10)
+                  );
+
+                  this.mainWindow.setPosition(x, y);
+                  if (callback) callback();
+                } else {
+                  // For non-VS Code applications, also use cursor position
+                  const cursorPoint = screen.getCursorScreenPoint();
+
+                  // Position popup near mouse cursor
+                  let x = cursorPoint.x + 15;
+                  let y = cursorPoint.y + 15;
+
+                  // Keep window within screen bounds
+                  if (x + windowBounds.width > width) {
+                    x = cursorPoint.x - windowBounds.width - 15;
+                  }
+                  if (y + windowBounds.height > height) {
+                    y = cursorPoint.y - windowBounds.height - 15;
+                  }
+
+                  // Ensure minimum distance from screen edges
+                  x = Math.max(
+                    10,
+                    Math.min(x, width - windowBounds.width - 10)
+                  );
+                  y = Math.max(
+                    10,
+                    Math.min(y, height - windowBounds.height - 10)
+                  );
+
+                  this.mainWindow.setPosition(x, y);
+                  if (callback) callback();
+                }
               }
-            });
+            );
           } else {
-            console.log("Could not get focused window, using fallback");
+            // xdotool failed (likely during startup), fallback to cursor position
             this.positionAtPointer();
             if (callback) callback();
           }
@@ -723,31 +687,6 @@ class NativeClipboardManager {
       }
     } else if (callback) {
       callback();
-    }
-  }
-
-  positionAtPointer() {
-    if (this.mainWindow) {
-      const { screen } = require("electron");
-      const cursorPoint = screen.getCursorScreenPoint();
-      const primaryDisplay = screen.getPrimaryDisplay();
-      const { width, height } = primaryDisplay.workAreaSize;
-      const windowBounds = this.mainWindow.getBounds();
-
-      let x = cursorPoint.x + 10;
-      let y = cursorPoint.y + 10;
-
-      if (x + windowBounds.width > width) {
-        x = cursorPoint.x - windowBounds.width - 10;
-      }
-      if (y + windowBounds.height > height) {
-        y = cursorPoint.y - windowBounds.height - 10;
-      }
-
-      x = Math.max(10, Math.min(x, width - windowBounds.width - 10));
-      y = Math.max(10, Math.min(y, height - windowBounds.height - 10));
-
-      this.mainWindow.setPosition(x, y);
     }
   }
 
@@ -806,8 +745,10 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on("second-instance", () => {
+    // When user tries to start app again, just focus the existing instance
+    // but don't show the window - let them use hotkey or tray icon
     if (clipboardManager.mainWindow) {
-      clipboardManager.showWindow();
+      // Keep app in background
     }
   });
 }
