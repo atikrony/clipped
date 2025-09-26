@@ -65,6 +65,12 @@ class NativeClipboardManager {
   async initialize() {
     await app.whenReady();
 
+    // Check if app is being started from autostart
+    const isStartup = process.argv.includes('--startup');
+    if (isStartup) {
+      console.log("Starting Clipped in background mode (from autostart)");
+    }
+
     this.createWindow();
     this.createTray();
     this.setupGlobalShortcuts();
@@ -144,7 +150,11 @@ class NativeClipboardManager {
 
   setupGlobalShortcuts() {
     // Get the saved hotkey from settings (default to Super+V)
-    const primaryHotkey = store.get("hotkey", "Super+V");
+    let primaryHotkey = store.get("hotkey", "Super+V");
+    
+    // Normalize hotkey format - remove spaces around + for Electron compatibility
+    primaryHotkey = primaryHotkey.replace(/\s*\+\s*/g, "+");
+    
     console.log(`Attempting to register primary hotkey: ${primaryHotkey}`);
 
     try {
@@ -290,18 +300,21 @@ class NativeClipboardManager {
 
     ipcMain.handle("set-hotkey", (event, hotkeyString) => {
       try {
+        // Normalize hotkey format - remove spaces around + for Electron compatibility
+        const normalizedHotkey = hotkeyString.replace(/\s*\+\s*/g, "+");
+        
         // Unregister all existing shortcuts first
         globalShortcut.unregisterAll();
 
-        // Save new hotkey to store
-        store.set("hotkey", hotkeyString);
+        // Save normalized hotkey to store
+        store.set("hotkey", normalizedHotkey);
 
         // Register the new hotkey directly
-        globalShortcut.register(hotkeyString, () => {
+        globalShortcut.register(normalizedHotkey, () => {
           this.toggleWindow();
         });
 
-        console.log(`Custom hotkey ${hotkeyString} registered successfully`);
+        console.log(`Custom hotkey ${normalizedHotkey} registered successfully`);
         return true;
       } catch (error) {
         console.error("Failed to set custom hotkey:", error);

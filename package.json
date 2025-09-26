@@ -1,6 +1,6 @@
 {
-  "name": "clipped-native",
-  "version": "1.0.0",
+  "name": "clipped",
+  "version": "1.0.2",
   "description": "Native Linux Clipboard Manager with Real System Integration",
   "main": "main.js",
   "author": {
@@ -29,8 +29,11 @@
   "dependencies": {
     "electron-store": "^8.1.0"
   },
+  "bin": {
+    "clipped": "/opt/Clipped/clipped"
+  },
   "build": {
-    "appId": "com.clipped.native",
+    "appId": "com.clipped.app",
     "productName": "Clipped",
     "directories": {
       "output": "dist"
@@ -76,10 +79,14 @@
       "maintainer": "Clipped Developer <dev@clipped.com>",
       "vendor": "Clipped",
       "synopsis": "Native Linux Clipboard Manager",
-      "description": "A powerful clipboard manager with system tray integration, global hotkeys, and emoji support. Manage your clipboard history with ease and boost your productivity."
+      "description": "A powerful clipboard manager with system tray integration, global hotkeys, and emoji support. Manage your clipboard history with ease and boost your productivity.",
+      "executableName": "clipped"
     },
     "deb": {
-      "afterInstall": "build/postinstall.sh"
+      "afterInstall": "build/postinstall.sh",
+      "fpm": [
+        "--after-install=build/postinstall.sh"
+      ]
     }
   }
 }
