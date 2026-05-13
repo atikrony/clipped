@@ -1,0 +1,35 @@
+Source: clipman
+Section: utils
+Priority: optional
+Maintainer: Your Name <you@example.com>
+Build-Depends: debhelper-compat (= 13),
+               gcc,
+               make,
+               pkg-config,
+               libgtk-3-dev,
+               libx11-dev,
+               libxtst-dev
+Standards-Version: 4.6.0
+Homepage: https://github.com/youruser/clipman
+
+Package: clipman
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+         libgtk-3-0,
+         libglib2.0-0,
+         libx11-6,
+         libxtst6,
+         libcairo2,
+         libgdk-pixbuf-2.0-0,
+         libpango-1.0-0
+Description: Lightweight clipboard history manager
+ Clipman monitors your clipboard and stores a history of text and images.
+ It ignores file/folder copies and multi-image copies.
+ Press Super+V (configurable) to open the floating history window.
+ .
+ Features:
+  - Stores up to 50 clipboard entries (text + single images)
+  - Searchable history
+  - Configurable global hotkey
+  - Auto-starts with desktop session
+  - Compact C/GTK3 binary

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Clipman
+Comment=Clipboard History Manager
+Exec=clipman
+Icon=edit-paste
+Categories=Utility;
+Keywords=clipboard;copy;paste;history;
+StartupNotify=false

@@ -1,0 +1,14 @@
+# compiled binary
+clipman
+
+# object files
+src/*.o
+
+# FUSE hidden files (OS artifact from open-but-deleted executables)
+.fuse_hidden*
+
+# deb build output
+build/
+
+# editor
+.vscode/
