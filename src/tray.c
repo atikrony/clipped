@@ -1,6 +1,14 @@
 /* GtkStatusIcon is deprecated in GTK3 but fully functional on Cinnamon,
- * XFCE, MATE, and LXQt.  GNOME users need the "AppIndicator" shell
- * extension.  Suppress the deprecation warning so the build stays clean. */
+ * Windows, XFCE, MATE, and LXQt.  GNOME users need the "AppIndicator"
+ * shell extension.  Suppress the deprecation warning.
+ * macOS does not support GtkStatusIcon — tray is skipped there. */
+#ifdef __APPLE__
+/* ── macOS stub ─ no tray support via GTK ─────────────────────── */
+#include "tray.h"
+void tray_init    (void) { /* tray not available on macOS via GTK */ }
+void tray_cleanup (void) {}
+#else   /* Linux + Windows */
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
@@ -133,3 +141,4 @@ void tray_cleanup(void) {
 }
 
 #pragma GCC diagnostic pop
+#endif  /* !__APPLE__ */

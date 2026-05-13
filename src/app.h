@@ -4,10 +4,6 @@
 #define _GNU_SOURCE
 
 #include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <X11/extensions/XTest.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <cairo.h>
@@ -15,6 +11,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+/* ── Platform-specific headers ───────────────────────────────── */
+#if defined(_WIN32)
+  #include <windows.h>
+
+#elif defined(__APPLE__)
+  #include <Carbon/Carbon.h>
+  #include <ApplicationServices/ApplicationServices.h>
+
+#else  /* Linux / X11 */
+  #include <gdk/gdkx.h>
+  #include <X11/Xlib.h>
+  #include <X11/keysym.h>
+  #include <X11/extensions/XTest.h>
+#endif
 
 #define APP_NAME    "clipman"
 #define APP_VERSION "1.0.0"

@@ -1,0 +1,34 @@
+# ── Windows build (run inside MSYS2 MinGW64 terminal) ────────────
+# Setup: install MSYS2 from https://www.msys2.org, then run:
+#   pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-gcc pkg-config make
+# Then open "MSYS2 MinGW 64-bit" terminal, cd to this folder, and: make -f Makefile.windows
+
+CC      = gcc
+PKGS    = gtk+-3.0
+CFLAGS  = -O2 -Wall -Wextra -std=gnu11 -Wno-deprecated-declarations \
+          $(shell pkg-config --cflags $(PKGS)) \
+          -D_WIN32_WINNT=0x0601 -DWINVER=0x0601
+LDFLAGS = $(shell pkg-config --libs $(PKGS)) -lm -mwindows
+
+TARGET  = clipped.exe
+SRCDIR  = src
+SRCS    = $(wildcard $(SRCDIR)/*.c)
+OBJS    = $(SRCS:.c=.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
+	strip $@
+	@echo ""
+	@echo "  Built: $(TARGET)"
+	@echo "  Copy clipped.exe + all DLLs to distribute."
+	@echo "  Run: ldd clipped.exe   to see which DLLs to bundle."
+
+$(SRCDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+.PHONY: all clean

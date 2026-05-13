@@ -35,10 +35,16 @@ static gboolean    s_pinned          = FALSE;
 static GtkWidget  *s_msg_label       = NULL;  /* remote message label */
 static gboolean    s_msg_fetched     = FALSE;
 
-/* Previous focused X11 window — for auto-paste */
-static Window      s_prev_focus      = None;
-static int         s_prev_revert     = RevertToNone;
+/* Previous focused window — type differs per platform */
 static gboolean    s_do_paste        = FALSE;
+#if defined(_WIN32)
+  static HWND      s_prev_focus      = NULL;
+#elif defined(__APPLE__)
+  static ProcessSerialNumber s_prev_focus = {0, kNoProcess};
+#else
+  static Window    s_prev_focus      = None;
+  static int       s_prev_revert     = RevertToNone;
+#endif
 
 /* ═══════════════════════════════════════════════════════════════
  * DESIGN / THEME  — edit values here to restyle the panel
@@ -263,11 +269,41 @@ static gboolean on_header_press(GtkWidget *w, GdkEventButton *ev, gpointer ud) {
     return FALSE;
 }
 
-/* ── Paste simulation ────────────────────────────────────────── */
+/* ── Paste simulation (platform-specific) ────────────────────── */
 static gboolean do_paste_cb(gpointer ud) {
     (void)ud;
     if (!s_do_paste) return FALSE;
     s_do_paste = FALSE;
+
+#if defined(_WIN32)
+    if (s_prev_focus) {
+        SetForegroundWindow(s_prev_focus);
+        Sleep(80);
+    }
+    s_prev_focus = NULL;
+    INPUT in[4] = {0};
+    in[0].type = INPUT_KEYBOARD; in[0].ki.wVk = VK_LCONTROL;
+    in[1].type = INPUT_KEYBOARD; in[1].ki.wVk = 'V';
+    in[2].type = INPUT_KEYBOARD; in[2].ki.wVk = 'V'; in[2].ki.dwFlags = KEYEVENTF_KEYUP;
+    in[3].type = INPUT_KEYBOARD; in[3].ki.wVk = VK_LCONTROL; in[3].ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(4, in, sizeof(INPUT));
+
+#elif defined(__APPLE__)
+    SetFrontProcess(&s_prev_focus);
+    /* macOS paste is Cmd+V */
+    CGEventRef a = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)55, true);   /* Cmd ↓ */
+    CGEventRef b = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)9,  true);   /* V   ↓ */
+    CGEventRef c = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)9,  false);  /* V   ↑ */
+    CGEventRef d = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)55, false);  /* Cmd ↑ */
+    CGEventSetFlags(b, kCGEventFlagMaskCommand);
+    CGEventSetFlags(c, kCGEventFlagMaskCommand);
+    CGEventPost(kCGHIDEventTap, a);
+    CGEventPost(kCGHIDEventTap, b);
+    CGEventPost(kCGHIDEventTap, c);
+    CGEventPost(kCGHIDEventTap, d);
+    CFRelease(a); CFRelease(b); CFRelease(c); CFRelease(d);
+
+#else   /* Linux / X11 */
     if (s_prev_focus == None || s_prev_focus == (Window)PointerRoot) return FALSE;
     Display *dpy    = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
     Window   target = s_prev_focus;
@@ -280,6 +316,7 @@ static gboolean do_paste_cb(gpointer ud) {
     XTestFakeKeyEvent(dpy, v_kc,    False, 0);
     XTestFakeKeyEvent(dpy, ctrl_kc, False, 0);
     XFlush(dpy);
+#endif
     return FALSE;
 }
 
@@ -891,8 +928,15 @@ void ui_refresh_list(void) {
 
 /* ── Show / Hide / Toggle ────────────────────────────────────── */
 void ui_show_window(void) {
+    /* Save focus so we can paste back after item click */
+#if defined(_WIN32)
+    s_prev_focus = GetForegroundWindow();
+#elif defined(__APPLE__)
+    GetFrontProcess(&s_prev_focus);
+#else
     Display *dpy = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
     XGetInputFocus(dpy, &s_prev_focus, &s_prev_revert);
+#endif
     position_window();
     gtk_widget_show_all(g_main_window);
     gtk_window_present_with_time(GTK_WINDOW(g_main_window), g_last_hotkey_time);
