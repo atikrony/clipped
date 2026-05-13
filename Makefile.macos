@@ -58,12 +58,12 @@ clipped.app: $(TARGET)
 # ── .dmg disk image ───────────────────────────────────────────────
 dmg: clipped.app
 	@echo "==> Creating clipped.dmg..."
-	@mkdir -p build
+	@mkdir -p releases
 	hdiutil create -volname "Clipped" \
 	               -srcfolder clipped.app \
 	               -ov -format UDZO \
-	               build/clipped_1.0.0_macos.dmg
-	@echo "  Done: build/clipped_1.0.0_macos.dmg"
+	               releases/clipped_1.0.0_macos.dmg
+	@echo "  Done: releases/clipped_1.0.0_macos.dmg"
 
 clean:
 	rm -f $(OBJS) $(TARGET)

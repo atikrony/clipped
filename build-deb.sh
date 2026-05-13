@@ -11,7 +11,7 @@ ARCH=$(dpkg --print-architecture)
 # Build in /tmp — avoids permission issues on NTFS/exFAT mounts where
 # all dirs are forced to 777 and dpkg-deb refuses to build from them.
 BUILDROOT="/tmp/${PKG}_${VER}_${ARCH}"
-OUTDIR="$(pwd)/build"
+OUTDIR="$(pwd)/releases"
 
 # ── 1. Install build dependencies only if missing ─────────────────
 MISSING=""

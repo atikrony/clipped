@@ -22,8 +22,10 @@ $(TARGET): $(OBJS)
 	strip $@
 	@echo ""
 	@echo "  Built: $(TARGET)"
-	@echo "  Copy clipped.exe + all DLLs to distribute."
-	@echo "  Run: ldd clipped.exe   to see which DLLs to bundle."
+	@mkdir -p releases
+	@cp clipped.exe releases/
+	@echo "  Output: releases/clipped.exe"
+	@echo "  Bundle DLLs: run  ldd clipped.exe  to see which ones to copy."
 
 $(SRCDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
