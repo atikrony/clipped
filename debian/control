@@ -1,7 +1,7 @@
 Source: clipman
 Section: utils
 Priority: optional
-Maintainer: Your Name <you@example.com>
+Maintainer: irony <atiqrony.aiub@gmail.com>
 Build-Depends: debhelper-compat (= 13),
                gcc,
                make,
@@ -10,7 +10,7 @@ Build-Depends: debhelper-compat (= 13),
                libx11-dev,
                libxtst-dev
 Standards-Version: 4.6.0
-Homepage: https://github.com/youruser/clipman
+Homepage: https://github.com/atikrony/clipped
 
 Package: clipman
 Architecture: any
@@ -21,15 +21,18 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
          libxtst6,
          libcairo2,
          libgdk-pixbuf-2.0-0,
-         libpango-1.0-0
-Description: Lightweight clipboard history manager
- Clipman monitors your clipboard and stores a history of text and images.
- It ignores file/folder copies and multi-image copies.
- Press Super+V (configurable) to open the floating history window.
+         libpango-1.0-0,
+         curl
+Description: Clipped — lightweight clipboard history manager
+ Monitors your clipboard and stores a history of text and images.
+ Press Super+V (or your custom hotkey) to open the panel, or click
+ the cat icon in the system tray.
  .
  Features:
-  - Stores up to 50 clipboard entries (text + single images)
-  - Searchable history
-  - Configurable global hotkey
-  - Auto-starts with desktop session
-  - Compact C/GTK3 binary
+  - Clipboard history with search and one-click paste
+  - Emoji browser and Unicode symbol browser
+  - Settings page with configurable hotkey
+  - System tray icon (white cat)
+  - Auto-starts at login
+  - Works on Ubuntu 20.04 / 22.04 / 24.04, Debian, Mint and more
+  - Runs via XWayland on Wayland sessions (GDK_BACKEND=x11)
