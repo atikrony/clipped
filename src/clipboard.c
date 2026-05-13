@@ -15,20 +15,19 @@ static gboolean has_gnome_files(GtkClipboard *cb) {
     return TRUE;
 }
 
-/* Returns TRUE if clipboard has any URI list (files/folders) */
-static gboolean has_uri_list(GtkClipboard *cb) {
-    GdkAtom *targets; gint n = 0;
-    gboolean found = FALSE;
-    if (gtk_clipboard_wait_for_targets(cb, &targets, &n)) {
-        for (int i = 0; i < n; i++) {
-            char *name = gdk_atom_name(targets[i]);
-            if (name && strcmp(name, "text/uri-list") == 0) found = TRUE;
-            g_free(name);
-            if (found) break;
-        }
-        g_free(targets);
-    }
-    return found;
+/* Count how many file URIs are on the clipboard.
+ * Returns 0 if there is no URI list at all. */
+static int count_uris(GtkClipboard *cb) {
+    GdkAtom atom = gdk_atom_intern("text/uri-list", FALSE);
+    GtkSelectionData *sel = gtk_clipboard_wait_for_contents(cb, atom);
+    if (!sel) return 0;
+    gchar **uris = gtk_selection_data_get_uris(sel);
+    gtk_selection_data_free(sel);
+    if (!uris) return 0;
+    int n = 0;
+    while (uris[n]) n++;
+    g_strfreev(uris);
+    return n;
 }
 
 static void on_owner_change(GtkClipboard *cb, GdkEvent *ev, gpointer ud) {
@@ -36,11 +35,15 @@ static void on_owner_change(GtkClipboard *cb, GdkEvent *ev, gpointer ud) {
 
     if (s_ignore) { s_ignore = FALSE; return; }
 
-    /* Skip anything from file manager (files / folders) */
-    if (has_gnome_files(cb)) return;
-    if (has_uri_list(cb))    return;
+    /* Count file URIs on the clipboard */
+    int n_uris = 0;
+    if (has_gnome_files(cb) || count_uris(cb) > 0)
+        n_uris = count_uris(cb);
 
-    /* Single image from image viewer / screenshot tool */
+    /* More than one file selected → skip entirely */
+    if (n_uris > 1) return;
+
+    /* Single file or no files: check for image data first */
     if (gtk_clipboard_wait_is_image_available(cb)) {
         GdkPixbuf *pb = gtk_clipboard_wait_for_image(cb);
         if (pb) {
@@ -51,8 +54,8 @@ static void on_owner_change(GtkClipboard *cb, GdkEvent *ev, gpointer ud) {
         return;
     }
 
-    /* Plain text */
-    if (gtk_clipboard_wait_is_text_available(cb)) {
+    /* No image — only store text if there are no file URIs */
+    if (n_uris == 0 && gtk_clipboard_wait_is_text_available(cb)) {
         char *text = gtk_clipboard_wait_for_text(cb);
         if (text) {
             storage_add_text(text);
