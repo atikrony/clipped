@@ -73,7 +73,12 @@ static GdkPixbuf *load_icon(int size) {
     /* Resolve the directory the running binary lives in. */
     char exe[512] = {0};
     char rel[560] = {0};
-    if (readlink("/proc/self/exe", exe, sizeof(exe) - 1) > 0) {
+#ifdef _WIN32
+    GetModuleFileNameA(NULL, exe, (DWORD)(sizeof(exe) - 1));
+#else
+    readlink("/proc/self/exe", exe, sizeof(exe) - 1);
+#endif
+    if (exe[0]) {
         char tmp[512];
         g_strlcpy(tmp, exe, sizeof(tmp));
         snprintf(rel, sizeof(rel), "%s/assets/clipman-cat.png", dirname(tmp));

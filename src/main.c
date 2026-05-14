@@ -5,15 +5,26 @@
 #include "hotkey.h"
 #include "settings.h"
 #include "tray.h"
+#ifndef _WIN32
 #include <fcntl.h>
 #include <sys/file.h>
 #include <unistd.h>
+#endif
 
 int main(int argc, char *argv[]) {
     /* ── Single-instance guard ──────────────────────────────────
-     * Try to acquire an exclusive non-blocking lock on a per-user
-     * file.  If another clipman is already running the lock fails
-     * and we exit immediately instead of spawning a second copy. */
+     * Prevent a second copy from running. On Windows use a named
+     * mutex; on POSIX use an exclusive lock file. */
+#if defined(_WIN32)
+    {
+        HANDLE mutex = CreateMutexA(NULL, TRUE, "Global\\clipman-single-instance");
+        if (!mutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+            if (mutex) CloseHandle(mutex);
+            return 0;   /* already running — quit silently */
+        }
+        /* mutex is intentionally left open until process exits */
+    }
+#else
     {
         char lp[256];
         snprintf(lp, sizeof(lp), "/tmp/clipman-%d.lock", (int)getuid());
@@ -25,6 +36,7 @@ int main(int argc, char *argv[]) {
         /* lfd is intentionally left open; the OS releases the lock
          * automatically when the process exits (clean or crash). */
     }
+#endif
 
     gtk_init(&argc, &argv);
 

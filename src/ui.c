@@ -11,6 +11,19 @@
 /* ── Globals ─────────────────────────────────────────────────── */
 GtkWidget *g_main_window = NULL;
 
+#ifdef _WIN32
+static const char *strcasestr(const char *haystack, const char *needle) {
+    if (!needle || !*needle) return haystack;
+    char *h = g_ascii_strdown(haystack, -1);
+    char *n = g_ascii_strdown(needle, -1);
+    const char *found = strstr(h, n);
+    const char *result = found ? haystack + (found - h) : NULL;
+    g_free(h);
+    g_free(n);
+    return result;
+}
+#endif
+
 /* ── Remote message URL ──────────────────────────────────────────
  * Put a plain-text file at this URL (e.g. a raw GitHub Gist).
  * Edit the file online and every user sees the new message the
@@ -235,7 +248,12 @@ static gboolean on_draw_bg(GtkWidget *w, cairo_t *cr, gpointer ud) {
 /* ── Cat image for header ────────────────────────────────────── */
 static GtkWidget *make_header_cat(int size) {
     char exe[512] = {0}, rel[560] = {0};
-    if (readlink("/proc/self/exe", exe, sizeof(exe) - 1) > 0) {
+#ifdef _WIN32
+    GetModuleFileNameA(NULL, exe, (DWORD)(sizeof(exe) - 1));
+#else
+    readlink("/proc/self/exe", exe, sizeof(exe) - 1);
+#endif
+    if (exe[0]) {
         char tmp[512];
         g_strlcpy(tmp, exe, sizeof(tmp));
         snprintf(rel, sizeof(rel), "%s/assets/clipman-cat.png", dirname(tmp));
