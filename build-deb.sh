@@ -6,7 +6,7 @@ set -e
 cd "$(dirname "$0")"
 
 VER=1.0.0
-PKG=clipman
+PKG=clipped
 ARCH=$(dpkg --print-architecture)
 # Build in /tmp — avoids permission issues on NTFS/exFAT mounts where
 # all dirs are forced to 777 and dpkg-deb refuses to build from them.
@@ -29,8 +29,8 @@ fi
 echo "==> Building..."
 make clean
 make
-strip clipman
-echo "    Binary size: $(du -sh clipman | cut -f1)"
+strip clipped
+echo "    Binary size: $(du -sh clipped | cut -f1)"
 
 # ── 3. Package layout ─────────────────────────────────────────────
 echo "==> Creating package layout..."
@@ -41,10 +41,10 @@ mkdir -p "$BUILDROOT/usr/share/applications"
 mkdir -p "$BUILDROOT/usr/share/pixmaps"
 mkdir -p "$BUILDROOT/etc/xdg/autostart"
 
-install -m 755 clipman                      "$BUILDROOT/usr/bin/clipman"
-install -m 644 assets/clipman-cat.png       "$BUILDROOT/usr/share/pixmaps/clipman-cat.png"
-install -m 644 clipman.desktop              "$BUILDROOT/usr/share/applications/clipman.desktop"
-install -m 644 clipman.autostart.desktop    "$BUILDROOT/etc/xdg/autostart/clipman.desktop"
+install -m 755 clipped                      "$BUILDROOT/usr/bin/clipped"
+install -m 644 assets/clipped-cat.png       "$BUILDROOT/usr/share/pixmaps/clipped-cat.png"
+install -m 644 clipped.desktop              "$BUILDROOT/usr/share/applications/clipped.desktop"
+install -m 644 clipped.autostart.desktop    "$BUILDROOT/etc/xdg/autostart/clipped.desktop"
 
 # ── 4. DEBIAN/control ─────────────────────────────────────────────
 cat > "$BUILDROOT/DEBIAN/control" << EOF
@@ -70,7 +70,7 @@ update-desktop-database -q /usr/share/applications 2>/dev/null || true
 echo ""
 echo "  Clipped installed successfully!"
 echo "  Log out and back in for autostart to take effect."
-echo "  Or launch now:  clipman &"
+echo "  Or launch now:  clipped &"
 echo "  Toggle panel:   Super+V"
 echo ""
 exit 0
@@ -80,7 +80,7 @@ chmod 755 "$BUILDROOT/DEBIAN/postinst"
 # ── 6. prerm — stop running instance before uninstall ─────────────
 cat > "$BUILDROOT/DEBIAN/prerm" << 'PRERM'
 #!/bin/sh
-pkill -x clipman 2>/dev/null || true
+pkill -x clipped 2>/dev/null || true
 exit 0
 PRERM
 chmod 755 "$BUILDROOT/DEBIAN/prerm"
@@ -89,7 +89,7 @@ chmod 755 "$BUILDROOT/DEBIAN/prerm"
 cat > "$BUILDROOT/DEBIAN/postrm" << 'POSTRM'
 #!/bin/sh
 if [ "$1" = "purge" ]; then
-    rm -rf "$HOME/.local/share/clipman" 2>/dev/null || true
+    rm -rf "$HOME/.local/share/clipped" "$HOME/.config/clipped" 2>/dev/null || true
 fi
 update-desktop-database -q /usr/share/applications 2>/dev/null || true
 exit 0
@@ -102,10 +102,10 @@ mkdir -p "$OUTDIR"
 dpkg-deb --build --root-owner-group "$BUILDROOT"
 mv "${BUILDROOT}.deb" "$OUTDIR/"
 
-DEB="build/${PKG}_${VER}_${ARCH}.deb"
+DEB="$OUTDIR/${PKG}_${VER}_${ARCH}.deb"
 echo ""
 echo "  ✓  Package: $DEB  ($(du -sh "$DEB" | cut -f1))"
 echo ""
 echo "  Install:   sudo dpkg -i $DEB"
-echo "  Or:        sudo apt install ./$DEB   (auto-installs missing runtime deps)"
+echo "  Or:        sudo apt install $DEB   (auto-installs missing runtime deps)"
 echo "  Uninstall: sudo dpkg -r $PKG"

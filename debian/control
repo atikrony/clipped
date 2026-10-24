@@ -1,4 +1,4 @@
-Source: clipman
+Source: clipped
 Section: utils
 Priority: optional
 Maintainer: irony <atiqrony.aiub@gmail.com>
@@ -12,7 +12,7 @@ Build-Depends: debhelper-compat (= 13),
 Standards-Version: 4.6.0
 Homepage: https://github.com/atikrony/clipped
 
-Package: clipman
+Package: clipped
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
          libgtk-3-0,

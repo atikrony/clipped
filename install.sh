@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh — install dependencies, build, and install clipman
+# install.sh — install dependencies, build, and install clipped
 set -e
 
 echo "==> Installing dependencies..."
@@ -17,5 +17,5 @@ echo "==> Installing to /usr..."
 sudo make install
 
 echo ""
-echo "Done. Launch with:  clipman &"
+echo "Done. Launch with:  clipped &"
 echo "Or log out and back in — the autostart entry will run it automatically."

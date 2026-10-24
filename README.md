@@ -23,7 +23,7 @@ All release files are in the [`releases/`](releases/) folder.
 
 | Platform | File | How to install |
 |---|---|---|
-| Linux (Ubuntu / Debian / Mint) | `clipman_1.0.0_amd64.deb` | `sudo apt install ./releases/clipman_1.0.0_amd64.deb` |
+| Linux (Debian-based distributions) | `clipped_1.0.0_amd64.deb` | `sudo apt install ./releases/clipped_1.0.0_amd64.deb` |
 | Windows | `clipped.exe` | Run the `.exe` directly |
 | macOS | `clipped_1.0.0_macos.dmg` | Open the `.dmg` and drag to Applications |
 
@@ -34,7 +34,7 @@ All release files are in the [`releases/`](releases/) folder.
 ### Install from .deb
 
 ```bash
-sudo apt install ./releases/clipman_1.0.0_amd64.deb
+sudo apt install ./releases/clipped_1.0.0_amd64.deb
 ```
 
 This installs the binary, desktop entry, and autostart entry.  
@@ -43,7 +43,7 @@ The app will start automatically on next login.
 ### Uninstall
 
 ```bash
-sudo dpkg -r clipman
+sudo dpkg -r clipped
 ```
 
 Or use the included script (also removes history and config):
@@ -126,7 +126,7 @@ Drag `Clipped.app` from Applications to Trash.
 To also remove history and config:
 
 ```bash
-rm -rf ~/.config/clipman ~/.local/share/clipman
+rm -rf ~/.config/clipped ~/.local/share/clipped
 ```
 
 ### Build on macOS
@@ -159,10 +159,9 @@ Change it any time in the **⚙ Settings** page inside the app.
 
 | Distro / OS | Works? | Notes |
 |---|---|---|
-| Ubuntu 20.04 / 22.04 | ✅ | |
-| Ubuntu 24.04 | ✅ | Runs via XWayland (`GDK_BACKEND=x11`) |
-| Linux Mint | ✅ | Tray works natively on Cinnamon |
-| Debian 11 / 12 | ✅ | |
+| Debian 11 / 12 and derivatives | ✅ | Install the `.deb` or build with `install.sh` |
+| Ubuntu 20.04 / 22.04 / 24.04 | ✅ | |
+| Linux Mint / Zorin OS | ✅ | Uses GTK3 and XWayland where needed |
 | Windows 10 / 11 | ✅ | Needs GTK3 DLLs |
 | macOS 12+ (Monterey+) | ✅ | Needs Homebrew GTK3 + Accessibility permission |
 
@@ -170,4 +169,10 @@ Change it any time in the **⚙ Settings** page inside the app.
 
 ## Built by
 
-**irony** — vibe coded 🐱
+[Github: @atikrony](https://github.com/atikrony) 🐱
+
+## Announcements
+
+The Settings page reads [`message.txt`](message.txt) from this repository. Edit that
+file and push it to GitHub to publish a message to all users. Leave it empty to
+show “No announcements.” The app ignores HTTP errors such as a missing file.

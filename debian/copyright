@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: clipman
-Source: https://github.com/youruser/clipman
+Upstream-Name: clipped
+Source: https://github.com/atikrony/clipped
 
 Files: *
 Copyright: 2026 Your Name <you@example.com>

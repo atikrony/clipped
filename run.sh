@@ -7,10 +7,10 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
 
 # Rebuild if binary is missing or any source file is newer than the binary
-if [ ! -f clipman ] || find src -name "*.c" -newer clipman 2>/dev/null | grep -q .; then
-    echo "[clipman] Building..."
+if [ ! -f clipped ] || find src -name "*.c" -newer clipped 2>/dev/null | grep -q .; then
+    echo "[clipped] Building..."
     make
 fi
 
-echo "[clipman] Starting (hotkey: Super+V, tray icon in panel)..."
-exec ./clipman "$@"
+echo "[clipped] Starting (hotkey: Super+V, tray icon in panel)..."
+exec ./clipped "$@"

@@ -81,12 +81,12 @@ static GdkPixbuf *load_icon(int size) {
     if (exe[0]) {
         char tmp[512];
         g_strlcpy(tmp, exe, sizeof(tmp));
-        snprintf(rel, sizeof(rel), "%s/assets/clipman-cat.png", dirname(tmp));
+        snprintf(rel, sizeof(rel), "%s/assets/clipped-cat.png", dirname(tmp));
     }
 
     const char *candidates[] = {
-        "/usr/share/pixmaps/clipman-cat.png",
-        "/usr/local/share/pixmaps/clipman-cat.png",
+        "/usr/share/pixmaps/clipped-cat.png",
+        "/usr/local/share/pixmaps/clipped-cat.png",
         rel,
         NULL
     };
@@ -113,7 +113,7 @@ static void on_popup_menu(GtkStatusIcon *icon, guint button,
                           guint activate_time, gpointer ud) {
     (void)icon; (void)ud;
     GtkWidget *menu     = gtk_menu_new();
-    GtkWidget *mi_open  = gtk_menu_item_new_with_label("Open Clipman");
+    GtkWidget *mi_open  = gtk_menu_item_new_with_label("Open Clipped");
     GtkWidget *sep      = gtk_separator_menu_item_new();
     GtkWidget *mi_quit  = gtk_menu_item_new_with_label("Quit");
 
@@ -135,7 +135,7 @@ void tray_init(void) {
     GdkPixbuf *pb = load_icon(64);
     s_icon = gtk_status_icon_new_from_pixbuf(pb);
     g_object_unref(pb);
-    gtk_status_icon_set_tooltip_text(s_icon, "Clipman — click to open clipboard");
+    gtk_status_icon_set_tooltip_text(s_icon, "Clipped — click to open clipboard");
     gtk_status_icon_set_visible(s_icon, TRUE);
     g_signal_connect(s_icon, "activate",   G_CALLBACK(on_activate),   NULL);
     g_signal_connect(s_icon, "popup-menu", G_CALLBACK(on_popup_menu), NULL);

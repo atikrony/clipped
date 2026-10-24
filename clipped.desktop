@@ -3,8 +3,8 @@ Version=1.0
 Type=Application
 Name=Clipped
 Comment=Clipboard History Manager
-Exec=env GDK_BACKEND=x11 clipman
-Icon=clipman-cat
+Exec=env GDK_BACKEND=x11 clipped
+Icon=clipped-cat
 Categories=Utility;
 Keywords=clipboard;copy;paste;history;clipped;
 StartupNotify=false

@@ -28,7 +28,7 @@ static const char *strcasestr(const char *haystack, const char *needle) {
  * Put a plain-text file at this URL (e.g. a raw GitHub Gist).
  * Edit the file online and every user sees the new message the
  * next time they open Settings.                                  */
-#define MESSAGE_URL "https://raw.githubusercontent.com/youruser/clipman/main/message.txt"
+#define MESSAGE_URL "https://raw.githubusercontent.com/atikrony/clipped/main/message.txt"
 
 /* ── Page indices ────────────────────────────────────────────── */
 typedef enum { PAGE_HISTORY=0, PAGE_ICONS, PAGE_SYMBOLS, PAGE_SETTINGS } Page;
@@ -65,7 +65,7 @@ static gboolean    s_do_paste        = FALSE;
  * ═══════════════════════════════════════════════════════════════ */
 static const char *CSS =
 
-    "window.clipman { background: transparent; }"
+    "window.clipped { background: transparent; }"
 
     /* ── Panel background ──────────────────────────────────────── */
     ".clip-bg {"
@@ -256,11 +256,11 @@ static GtkWidget *make_header_cat(int size) {
     if (exe[0]) {
         char tmp[512];
         g_strlcpy(tmp, exe, sizeof(tmp));
-        snprintf(rel, sizeof(rel), "%s/assets/clipman-cat.png", dirname(tmp));
+        snprintf(rel, sizeof(rel), "%s/assets/clipped-cat.png", dirname(tmp));
     }
     const char *candidates[] = {
-        "/usr/share/pixmaps/clipman-cat.png",
-        "/usr/local/share/pixmaps/clipman-cat.png",
+        "/usr/share/pixmaps/clipped-cat.png",
+        "/usr/local/share/pixmaps/clipped-cat.png",
         rel,
         NULL
     };
@@ -584,11 +584,15 @@ static void on_fetch_done(GObject *proc, GAsyncResult *res, gpointer data) {
     GtkLabel *label = GTK_LABEL(data);
     char *out = NULL;
     GError *err = NULL;
-    if (g_subprocess_communicate_utf8_finish(G_SUBPROCESS(proc), res, &out, NULL, &err)) {
+    if (g_subprocess_communicate_utf8_finish(G_SUBPROCESS(proc), res, &out, NULL, &err) &&
+        g_subprocess_get_exit_status(G_SUBPROCESS(proc)) == 0) {
         if (out) {
             g_strstrip(out);
             if (*out) gtk_label_set_text(label, out);
+            else gtk_label_set_text(label, "No announcements.");
         }
+    } else {
+        gtk_label_set_text(label, "Announcements are unavailable right now.");
     }
     g_free(out);
     if (err) g_error_free(err);
@@ -601,8 +605,12 @@ static void fetch_remote_message(void) {
     GError *err = NULL;
     GSubprocess *sp = g_subprocess_new(
         G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDERR_SILENCE,
-        &err, "curl", "-s", "--max-time", "5", MESSAGE_URL, NULL);
-    if (!sp) { if (err) g_error_free(err); return; }
+        &err, "curl", "-fsSL", "--max-time", "5", MESSAGE_URL, NULL);
+    if (!sp) {
+        gtk_label_set_text(GTK_LABEL(s_msg_label), "Announcements are unavailable right now.");
+        if (err) g_error_free(err);
+        return;
+    }
     g_subprocess_communicate_utf8_async(sp, NULL, NULL, on_fetch_done, s_msg_label);
 }
 
@@ -704,7 +712,7 @@ static GtkWidget *build_settings_page(void) {
     gtk_box_pack_start(GTK_BOX(vbox), row_max, FALSE, FALSE, 0);
 
     GtkWidget *row_clr = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_style_context_add_class(gtk_widget_get_style_context(row_clr), "settings-row");
+    gtk_widget_set_hexpand(row_clr, TRUE);
     GtkWidget *clr_btn = gtk_button_new_with_label("🗑  Clear all history");
     gtk_button_set_relief(GTK_BUTTON(clr_btn), GTK_RELIEF_NONE);
     GtkCssProvider *clr_css = gtk_css_provider_new();
@@ -715,7 +723,7 @@ static GtkWidget *build_settings_page(void) {
     gtk_style_context_add_provider(gtk_widget_get_style_context(clr_btn),
         GTK_STYLE_PROVIDER(clr_css), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     g_object_unref(clr_css);
-    gtk_widget_set_halign(clr_btn, GTK_ALIGN_START);
+    gtk_widget_set_halign(clr_btn, GTK_ALIGN_CENTER);
     g_signal_connect(clr_btn, "clicked", G_CALLBACK(on_clear_history), NULL);
     gtk_box_pack_start(GTK_BOX(row_clr), clr_btn, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), row_clr, FALSE, FALSE, 0);
@@ -756,7 +764,7 @@ static GtkWidget *build_settings_page(void) {
     GtkWidget *credit_lbl = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(credit_lbl),
         "<span foreground='#aabbcc' size='small' style='italic'>"
-        "Developped by irony! (vibe coded)"
+        "Github: <a href='https://github.com/atikrony'>@atikrony</a>"
         "</span>");
     gtk_label_set_xalign(GTK_LABEL(credit_lbl), 0);
     gtk_box_pack_start(GTK_BOX(credit_box), credit_lbl, FALSE, FALSE, 0);
@@ -800,12 +808,19 @@ static void on_nav_clicked(GtkButton *b, gpointer ud) {
 /* ── Window position ─────────────────────────────────────────── */
 static void position_window(void) {
     GdkDisplay  *disp = gdk_display_get_default();
-    GdkMonitor  *mon  = gdk_display_get_primary_monitor(disp);
+    gint pointer_x = 0, pointer_y = 0;
+    GdkSeat *seat = gdk_display_get_default_seat(disp);
+    GdkDevice *pointer = seat ? gdk_seat_get_pointer(seat) : NULL;
+    if (pointer) gdk_device_get_position(pointer, NULL, &pointer_x, &pointer_y);
+    GdkMonitor *mon = gdk_display_get_monitor_at_point(disp, pointer_x, pointer_y);
+    if (!mon) mon = gdk_display_get_primary_monitor(disp);
     GdkRectangle geom;
     gdk_monitor_get_geometry(mon, &geom);
-    gtk_window_move(GTK_WINDOW(g_main_window),
-                    geom.x + geom.width  - WIN_WIDTH  - 20,
-                    geom.y + 40);
+    gint x = pointer ? pointer_x - WIN_WIDTH / 2 : geom.x + geom.width - WIN_WIDTH - 20;
+    gint y = pointer ? pointer_y - 20 : geom.y + 40;
+    x = CLAMP(x, geom.x, geom.x + geom.width - WIN_WIDTH);
+    y = CLAMP(y, geom.y, geom.y + geom.height - WIN_HEIGHT);
+    gtk_window_move(GTK_WINDOW(g_main_window), x, y);
 }
 
 /* ── ui_init ─────────────────────────────────────────────────── */
@@ -828,7 +843,7 @@ void ui_init(void) {
     gtk_window_set_skip_pager_hint (GTK_WINDOW(g_main_window), TRUE);
     gtk_window_set_type_hint       (GTK_WINDOW(g_main_window), GDK_WINDOW_TYPE_HINT_UTILITY);
     gtk_widget_set_app_paintable   (g_main_window, TRUE);
-    gtk_style_context_add_class    (gtk_widget_get_style_context(g_main_window), "clipman");
+    gtk_style_context_add_class    (gtk_widget_get_style_context(g_main_window), "clipped");
     set_rgba_visual(g_main_window);
     g_signal_connect(g_main_window, "screen-changed",  G_CALLBACK(set_rgba_visual),         NULL);
     g_signal_connect(g_main_window, "draw",             G_CALLBACK(on_draw_bg),              NULL);

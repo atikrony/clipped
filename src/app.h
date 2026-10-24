@@ -27,7 +27,7 @@
   #include <X11/extensions/XTest.h>
 #endif
 
-#define APP_NAME    "clipman"
+#define APP_NAME    "clipped"
 #define APP_VERSION "1.0.0"
 #define MAX_HISTORY 50           /* max clipboard entries kept in history */
 #define PREVIEW_LEN 120          /* max chars shown in one-line preview   */

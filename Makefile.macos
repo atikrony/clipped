@@ -39,7 +39,7 @@ clipped.app: $(TARGET)
 	@mkdir -p clipped.app/Contents/MacOS
 	@mkdir -p clipped.app/Contents/Resources
 	@cp $(TARGET) clipped.app/Contents/MacOS/clipped
-	@cp assets/clipman-cat.png clipped.app/Contents/Resources/clipped.png
+	@cp assets/clipped-cat.png clipped.app/Contents/Resources/clipped.png
 	@printf '<?xml version="1.0"?>\n\
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"\n\
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n\

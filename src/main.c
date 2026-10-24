@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
      * mutex; on POSIX use an exclusive lock file. */
 #if defined(_WIN32)
     {
-        HANDLE mutex = CreateMutexA(NULL, TRUE, "Global\\clipman-single-instance");
+        HANDLE mutex = CreateMutexA(NULL, TRUE, "Global\\clipped-single-instance");
         if (!mutex || GetLastError() == ERROR_ALREADY_EXISTS) {
             if (mutex) CloseHandle(mutex);
             return 0;   /* already running — quit silently */
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 #else
     {
         char lp[256];
-        snprintf(lp, sizeof(lp), "/tmp/clipman-%d.lock", (int)getuid());
+        snprintf(lp, sizeof(lp), "/tmp/clipped-%d.lock", (int)getuid());
         int lfd = open(lp, O_CREAT | O_RDWR, 0600);
         if (lfd < 0 || flock(lfd, LOCK_EX | LOCK_NB) != 0) {
             if (lfd >= 0) close(lfd);

@@ -1,6 +1,5 @@
 CC      = gcc
 PKGS    = gtk+-3.0 x11 xtst
-export PKG_CONFIG_PATH ?= /usr/lib/x86_64-linux-gnu/pkgconfig
 CFLAGS  = -O2 -Wall -Wextra -std=gnu11 -Wno-deprecated-declarations \
           $(shell pkg-config --cflags $(PKGS))
 LDFLAGS = $(shell pkg-config --libs $(PKGS)) -lm
@@ -11,7 +10,7 @@ APPDIR  = $(DESTDIR)$(PREFIX)/share/applications
 AUTDIR  = $(DESTDIR)/etc/xdg/autostart
 PIXDIR  = $(DESTDIR)$(PREFIX)/share/pixmaps
 
-TARGET  = clipman
+TARGET  = clipped
 SRCDIR  = src
 SRCS    = $(wildcard $(SRCDIR)/*.c)
 OBJS    = $(SRCS:.c=.o)
@@ -40,9 +39,9 @@ deps:
 # ── Build + install in one step (run 'make deps' first if needed) ─────────
 install: $(TARGET)
 	install -Dm755 $(TARGET)                        $(BINDIR)/$(TARGET)
-	install -Dm644 clipman.desktop                  $(APPDIR)/$(TARGET).desktop
-	install -Dm644 clipman.autostart.desktop        $(AUTDIR)/$(TARGET).desktop
-	install -Dm644 assets/clipman-cat.png           $(PIXDIR)/clipman-cat.png
+	install -Dm644 clipped.desktop                  $(APPDIR)/$(TARGET).desktop
+	install -Dm644 clipped.autostart.desktop        $(AUTDIR)/$(TARGET).desktop
+	install -Dm644 assets/clipped-cat.png           $(PIXDIR)/clipped-cat.png
 
 uninstall:
 	rm -f $(BINDIR)/$(TARGET)

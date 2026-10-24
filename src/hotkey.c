@@ -216,7 +216,7 @@ static void grab(void) {
     static const guint extra[] = {0, LockMask, Mod2Mask, LockMask|Mod2Mask};
     for (int i = 0; i < 4; i++)
         XGrabKey(s_dpy, s_keycode, s_mods | extra[i], s_root,
-                 True, GrabModeAsync, GrabModeAsync);
+                 False, GrabModeAsync, GrabModeAsync);
     XFlush(s_dpy);
 }
 
@@ -225,8 +225,10 @@ static gboolean x_dispatch(GIOChannel *src, GIOCondition cond, gpointer ud) {
     while (XPending(s_dpy)) {
         XEvent ev;
         XNextEvent(s_dpy, &ev);
-        if (ev.type == KeyPress) {
-            if ((ev.xkey.time - s_last_toggle_time) > 300u) {
+        if (ev.type == KeyPress && ev.xkey.keycode == s_keycode) {
+            /* Ignore auto-repeat and duplicate modifier combinations, but
+             * do not require a second key press to open the panel. */
+            if ((guint32)(ev.xkey.time - s_last_toggle_time) > 300u) {
                 s_last_toggle_time = ev.xkey.time;
                 g_last_hotkey_time = ev.xkey.time;
                 ui_toggle_window();
@@ -248,6 +250,7 @@ void hotkey_set(const char *keystr) {
     ungrab();
     g_free(s_hotkey);
     s_hotkey  = g_ascii_strdown(keystr, -1);
+    if (!s_dpy) return;
     s_mods    = parse_mods(s_hotkey);
     s_keycode = parse_keycode(s_hotkey, s_dpy);
     grab();
